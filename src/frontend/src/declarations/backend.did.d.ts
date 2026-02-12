@@ -37,6 +37,22 @@ export interface MockTest {
 export type MockTestContent = { 'pdf' : string } |
   { 'video' : string } |
   { 'text' : string };
+export interface PopupAnnouncement {
+  'id' : bigint,
+  'createdAt' : Time,
+  'audioUrl' : [] | [string],
+  'isActive' : boolean,
+  'message' : string,
+  'videoUrl' : [] | [string],
+}
+export interface SiteWideEffect {
+  'id' : bigint,
+  'active' : boolean,
+  'createdAt' : Time,
+  'description' : string,
+  'effectType' : string,
+  'triggerEpisode' : string,
+}
 export type Time = bigint;
 export interface UserProfile { 'name' : string }
 export type UserRole = { 'admin' : null } |
@@ -48,15 +64,27 @@ export interface _SERVICE {
     [string, string, Array<string>, [] | [string]],
     undefined
   >,
+  'adminToggleEffectActive' : ActorMethod<[boolean], undefined>,
   'assignCallerUserRole' : ActorMethod<[Principal, UserRole], undefined>,
+  'clearSiteWideEffect' : ActorMethod<[], undefined>,
   'createAnnouncement' : ActorMethod<
     [string, [] | [string], [] | [string]],
     bigint
   >,
   'createMockTest' : ActorMethod<[string, MockTestContent], bigint>,
+  'createOrUpdatePopupAnnouncement' : ActorMethod<
+    [[] | [bigint], string, [] | [string], [] | [string]],
+    bigint
+  >,
+  'deactivatePopupAnnouncement' : ActorMethod<[bigint], undefined>,
   'deleteAnnouncement' : ActorMethod<[bigint], undefined>,
   'deleteCentre' : ActorMethod<[string], undefined>,
   'deleteMockTest' : ActorMethod<[bigint], undefined>,
+  'deletePopupAnnouncement' : ActorMethod<[bigint], undefined>,
+  'getActivePopupAnnouncements' : ActorMethod<[], Array<PopupAnnouncement>>,
+  'getActiveSiteWideEffect' : ActorMethod<[], [] | [SiteWideEffect]>,
+  'getAllPopupsSorted' : ActorMethod<[], Array<PopupAnnouncement>>,
+  'getAllPopupsSortedById' : ActorMethod<[], Array<PopupAnnouncement>>,
   'getAnnouncements' : ActorMethod<[], Array<Announcement>>,
   'getCallerUserProfile' : ActorMethod<[], [] | [UserProfile]>,
   'getCallerUserRole' : ActorMethod<[], UserRole>,
@@ -64,9 +92,18 @@ export interface _SERVICE {
   'getEmbedConfig' : ActorMethod<[], EmbedConfig>,
   'getMockTests' : ActorMethod<[], Array<MockTest>>,
   'getMockTestsByType' : ActorMethod<[string], Array<MockTest>>,
+  'getPopupAnnouncementById' : ActorMethod<[bigint], [] | [PopupAnnouncement]>,
+  'getPopupsPaged' : ActorMethod<
+    [bigint, bigint],
+    { 'hasNextPage' : boolean, 'popups' : Array<PopupAnnouncement> }
+  >,
   'getUserProfile' : ActorMethod<[Principal], [] | [UserProfile]>,
   'isCallerAdmin' : ActorMethod<[], boolean>,
+  'isEffectActive' : ActorMethod<[string], boolean>,
+  'revokeAdminAccess' : ActorMethod<[], undefined>,
   'saveCallerUserProfile' : ActorMethod<[UserProfile], undefined>,
+  'triggerSiteWideEffect' : ActorMethod<[string, string, string], bigint>,
+  'unlockAdminAccess' : ActorMethod<[string], boolean>,
   'updateAnnouncement' : ActorMethod<
     [bigint, string, [] | [string], [] | [string]],
     undefined

@@ -1,18 +1,18 @@
 {
   "schemaVersion": "1.0.0",
-  "projectStateVersion": 25,
-  "summary": "Build a website for Saha Institute (Navodaya coaching centre) featuring embedded YouTube/Facebook content with latest videos shown dynamically, a reviews page, information about multiple centres across West Bengal, contact details, a site-wide logo, a learning-tips chatbot (tips + fees/courses info), and an authenticated admin area (Internet Identity + access code) to manage mock tests and announcements, plus user/admin profile pages (with admin fire animation), attribution of admin authors on posts, admin-triggered site-wide visual effects + popup messages (delivered on refresh/navigation, not true realtime), and social features for normal accounts (comments, likes, and user-to-user chat).",
+  "projectStateVersion": 29,
+  "summary": "Build a website for Saha Institute (Navodaya coaching centre) featuring embedded YouTube/Facebook content with latest videos shown dynamically, a reviews page, information about multiple centres across West Bengal, contact details, a site-wide logo, a learning-tips chatbot (tips + fees/courses info), and an authenticated admin area (Internet Identity + access code) to manage mock tests and announcements, plus user/admin profile pages (with admin fire animation), attribution of admin authors on posts, admin-triggered site-wide visual effects + popup messages (delivered on refresh/navigation, not true realtime), and social features for normal accounts (comments, likes, and user-to-user chat). Admin panel access code is \"12345-QUICKL\".",
   "architectural_notes": [
     "Do not use AI-generated photos; use only provided/logo assets or non-AI images.",
     "YouTube: show newest videos by fetching channel/video list on page load (no scheduled daily background updates).",
     "Facebook: use direct embeds for page/video; do not rely on Facebook API.",
-    "Auth: use Internet Identity for user login; gate admin panel with additional access code \"12345-QUICKLMOCK\".",
     "Admin content types supported: mock tests (video/PDF/text) and announcements (text/video/audio).",
     "Facebook: embed the two provided videos via direct embed URLs (no Facebook API): https://www.facebook.com/share/v/1DFxjp9oRq/ and https://www.facebook.com/share/v/1K3RNjYEXa/.",
     "Easter egg: 28-click trigger on the Centres 'no data' page opens a hidden secret page (no public route), featuring looping forest animation with falling leaves, looping bird audio, 23 manga volume placeholders + game placeholders, and a 10-click background trigger to reveal Demon Slayer characters (placeholders).",
     "Secret page entry trigger should work via clicking the \"Built by Caffeine AI\" area (confirm/ensure this is the intended entry interaction).",
     "Secret Forest manga: do not embed or display copyrighted Viz manga pages; instead provide outbound links to official Viz pages for volumes 1–23.",
-    "Do not embed or redistribute copyrighted Demon Slayer video clips; any 'official clip' used for the Fire Wheel effect must be user-provided with clear rights/permission or replaced with an original non-copyrighted animation."
+    "Do not embed or redistribute copyrighted Demon Slayer video clips; any 'official clip' used for the Fire Wheel effect must be user-provided with clear rights/permission or replaced with an original non-copyrighted animation.",
+    "Auth: use Internet Identity for user login; gate admin panel with additional access code \"12345-QUICKL\"."
   ],
   "known_issues": [
     "All pages are returning \"Not Found\"; site/route hosting appears broken (including missing login and admin panel routes).",
@@ -21,9 +21,10 @@
     "Secret Forest page: bird-chirping audio is not playing/autostarting on page open (with controls).",
     "Secret Forest page: manga volume interactions are not working as expected; user requested real Viz manga but must be implemented as official Viz outbound links instead.",
     "Secret Forest page: idle detection / Infinity Castle falling sequence is not triggering/visible.",
-    "Secret Forest page: 10-click background trigger to reveal Demon Slayer character placeholders is not working."
+    "Secret Forest page: 10-click background trigger to reveal Demon Slayer character placeholders is not working.",
+    "Admin panel unlock: entering the admin access code still results in \"Access Denied – You do not have admin privileges\" even when logged in (likely admin code/verification logic mismatch)."
   ],
-  "isFixRequest": false,
+  "isFixRequest": true,
   "existing_features": [
     {
       "id": "feature-create-the-public-saha-institute-website-shell-with-a-responsive-layout-top-navigation-and-footer-and-ensure-the-uploaded-saha-institute-logo-is-displayed-site-wide-header-and-browser-tab-favicon",
@@ -368,6 +369,54 @@
         "REQ-47"
       ],
       "version": 1
+    },
+    {
+      "id": "feature-update-the-admin-access-code-used-by-the-admin-panel-unlock-screen-to-exactly-12345-quickl-replace-the-current-12345-quicklmock",
+      "title": "Update the admin access code used by the Admin Panel unlock screen to exactly: \"12345-QUICKL\" (replace the current \"12345-QUICKLMOCK\").",
+      "reqIds": [
+        "REQ-48"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-fix-the-admin-panel-authorization-flow-so-that-after-a-logged-in-user-enters-the-correct-admin-access-code-12345-quickl-the-user-is-granted-admin-privileges-in-the-backend-and-no-longer-sees-the-access-denied-you-do-not-have-admin-privileges-screen",
+      "title": "Fix the Admin Panel authorization flow so that after a logged-in user enters the correct admin access code (\"12345-QUICKL\"), the user is granted admin privileges in the backend and no longer sees the \"Access Denied – You do not have admin privileges\" screen.",
+      "reqIds": [
+        "REQ-49"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-ensure-admin-unlock-is-revocable-by-logout-when-the-user-logs-out-the-frontend-must-revoke-the-caller-s-admin-privileges-in-the-backend-best-effort-do-not-block-logout-if-the-actor-is-unavailable",
+      "title": "Ensure admin unlock is revocable by logout: when the user logs out, the frontend must revoke the caller’s admin privileges in the backend (best-effort; do not block logout if the actor is unavailable).",
+      "reqIds": [
+        "REQ-50"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-add-an-effects-popups-section-to-the-admin-panel-admin-that-is-visible-only-to-verified-admins-and-provides-ui-controls-to-trigger-site-wide-visual-effects-and-site-wide-popup-announcements",
+      "title": "Add an “Effects & Popups” section to the Admin Panel (/admin) that is visible only to verified admins and provides UI controls to trigger site-wide visual effects and site-wide popup announcements.",
+      "reqIds": [
+        "REQ-51"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-add-more-effect-presets-beyond-the-current-list-and-ensure-each-preset-has-a-corresponding-frontend-visual-implementation-that-can-be-activated-from-the-backend-triggered-state-without-breaking-normal-site-navigation",
+      "title": "Add more effect presets beyond the current list, and ensure each preset has a corresponding frontend visual implementation that can be activated from the backend-triggered state without breaking normal site navigation.",
+      "reqIds": [
+        "REQ-53"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-improve-the-admin-panel-page-visual-experience-more-effects-by-adding-polished-motion-hover-micro-interactions-and-a-distinct-admin-only-styling-treatment-that-still-matches-the-site-s-education-coaching-theme",
+      "title": "Improve the Admin Panel page visual experience (“more effects”) by adding polished motion/hover micro-interactions and a distinct admin-only styling treatment that still matches the site’s education/coaching theme.",
+      "reqIds": [
+        "REQ-54"
+      ],
+      "version": 1
     }
   ],
   "new_feature_requests": [
@@ -520,6 +569,32 @@
       "summary": "Add backend support to list discoverable users for chat (e.g., users who have created a profile), returning enough display information for the chat UI to show a user list.",
       "reqIds": [
         "REQ-45"
+      ],
+      "status": "pending"
+    },
+    {
+      "id": "AR-40",
+      "summary": "Restrict roles to only \"admin\" and \"user\"; after entering the admin access code the logged-in account becomes an admin (until logout), and only admins can assign roles to other users",
+      "reqIds": [],
+      "status": "pending"
+    },
+    {
+      "id": "AR-41",
+      "summary": "Add admin role-assignment controls on user profile pages (accessible to admins) so admins can set a user's role (admin/user) from the profile UI",
+      "reqIds": [],
+      "status": "pending"
+    },
+    {
+      "id": "AR-42",
+      "summary": "Expand the set of admin-triggered site-wide effects available in the admin panel (add more effects beyond the current preset list)",
+      "reqIds": [],
+      "status": "pending"
+    },
+    {
+      "id": "AR-44",
+      "summary": "Implement backend support for admin-triggered site-wide effects and site-wide popup announcements, stored in the single Motoko actor and retrievable by the frontend on page load/navigation (no real-time).",
+      "reqIds": [
+        "REQ-52"
       ],
       "status": "pending"
     }

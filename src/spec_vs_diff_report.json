@@ -1,53 +1,76 @@
 {
   "kind": "spec_vs_diff_report",
   "version": "1.0",
-  "generatedAt": "2026-02-12T06:23:41.835Z",
-  "summary": "Diff focuses on frontend routing and data-fetching pages (Centres/Announcements/Mock Tests) using TanStack Router + React Query and a useActor hook, plus adds hidden/easter-egg routes. There is not enough evidence in the diff summary of deployment/config fixes (dfx/canister config/build pipeline) or of a verified frontend-to-backend canister ID/agent initialization fix required to guarantee successful IC deployment.",
+  "generatedAt": "2026-02-12T14:26:35.301Z",
+  "summary": "The diff clearly adds multiple new site-wide visual effect presets plus a global effects overlay layer and polling hook, and it updates the Admin Panel code to include state/mutations for triggering effects and creating popups. However, the diff does not provide clear evidence that site-wide popup announcements are retrievable and shown to normal users, and backend support for popup/effect publishing/query methods is not visible in the provided backend truncation. There are also several unrelated/extra features (e.g., secret forest route/styles and other page changes) not requested by the BuildRequest.",
   "missing_requirements": [
     {
-      "id": "REQ-46",
-      "requirement": "Investigate the current deployment failure and apply the necessary code/configuration fixes so the project deploys successfully to the Internet Computer (fresh build succeeds; `dfx deploy` succeeds; SPA routes render without unexpected Not Found).",
-      "reason": "The diff summary only shows frontend route definitions and page-level loading/query behavior. It provides no evidence of deployment-related configuration changes (e.g., dfx.json, canister build setup, asset canister settings, SPA fallback for IC asset canister) or backend build/deploy fixes needed to ensure `dfx deploy` completes successfully.",
+      "id": "REQ-52",
+      "requirement": "Backend exposes an admin-only update method to set the current site-wide effect preset and optionally a popup message payload, and exposes a public/user-readable query method to return the latest active effect + popup payload; only admins can publish; state persists.",
+      "reason": "While backend types/state fields for effects and popups are shown, the diff summary does not show the required backend methods (admin-only trigger/set for effect+popup and public query to fetch the latest combined payload), nor the authorization checks around them. The frontend calls methods like getActiveSiteWideEffect/triggerSiteWideEffect/clearSiteWideEffect and (truncated) popup creation, but those methods are not evidenced in backend/main.mo due to truncation.",
       "evidence": [
-        "frontend/src/App.tsx",
-        "frontend-file-summaries.txt"
+        "backend/main.mo (truncated: shows types SiteWideEffect/PopupAnnouncement and state vars, but no effect/popup methods visible)",
+        "frontend/src/components/effects/useSiteWideEffectState.ts (calls actor.getActiveSiteWideEffect())",
+        "frontend/src/pages/AdminPanelPage.tsx (truncated: calls actor.triggerSiteWideEffect(), actor.clearSiteWideEffect(), and begins a popup creation mutation)"
       ]
     },
     {
-      "id": "REQ-47",
-      "requirement": "Ensure the deployed frontend correctly connects to the deployed backend canister (actor) so pages can fetch data without runtime errors (no blocking console errors; canister ID resolution works; Centres/Announcements/Mock Tests load empty/loading states or content).",
-      "reason": "Pages were updated to gate queries on `actor` availability, but the diff summary does not show changes to the actor/agent initialization itself (e.g., canister ID resolution in production, environment variables, generated declarations usage, or useActor implementation). Without those, correct connection to the deployed backend canister cannot be confirmed.",
+      "id": "REQ-51",
+      "requirement": "Non-admin users cannot see or use the “Effects & Popups” controls (they continue to see existing authentication/access-denied flows).",
+      "reason": "AdminPanelPage.tsx shows admin-checking logic (actor.isCallerAdmin()) and effect/popup control state, but the diff excerpt is truncated before the rendered UI/conditional gating is shown. From the provided evidence alone, it’s not confirmable that the section is fully hidden/disabled for non-admins.",
       "evidence": [
-        "frontend/src/pages/AnnouncementsPage.tsx",
-        "frontend/src/pages/CentresPage.tsx",
-        "frontend/src/pages/MockTestsPage.tsx"
+        "frontend/src/pages/AdminPanelPage.tsx (truncated: has isAdmin query and Effects & Popups state, but rendering/gating not shown)"
+      ]
+    },
+    {
+      "id": "REQ-52",
+      "requirement": "Frontend retrieves and displays the latest active popup announcement payload to normal users on refresh/navigation/polling (no real-time), similar to the site-wide effects behavior.",
+      "reason": "A site-wide effects polling hook and overlay layer were added, but there is no corresponding popup polling hook or a global popup-rendering component shown. The Admin Panel includes popup message/video/audio state and a create popup mutation (truncated), but there’s no evidence of a user-facing popup component wired into SiteLayout.",
+      "evidence": [
+        "frontend/src/components/layout/SiteLayout.tsx (only adds <SiteWideEffectsLayer />; no popup layer)",
+        "frontend/src/components/effects/useSiteWideEffectState.ts (only fetches getActiveSiteWideEffect; no popup fetch)",
+        "frontend/src/pages/AdminPanelPage.tsx (truncated: popup inputs/mutation begin, but no evidence of site-wide popup consumption elsewhere)"
       ]
     }
   ],
   "hallucinated_features": [
     {
-      "description": "Added/kept a hidden \"Secret forest\" route at /forest-of-demons and a separate \"fake 404 kickout\" route at /kicked-out-404.",
-      "reason": "Not requested by REQ-46/REQ-47 (deployment + backend connectivity). These are new product/experience routes unrelated to unblocking deployment.",
+      "description": "Secret forest route/styles/easter-egg related UI and animations unrelated to the Admin “Effects & Popups” expansion.",
+      "reason": "The BuildRequest is narrowly about expanding the Admin Panel with effects/popups and backend support; the diff summary references secret forest styles and routes/easter eggs, which are not requested requirements.",
       "evidence": [
-        "frontend/src/App.tsx",
-        "frontend-file-summaries.txt"
+        "frontend/src/index.css (contains \"Secret Forest Styles\")",
+        "frontend-file-summaries.txt (mentions /forest-of-demons route and Easter egg navigation/counters, plus fake 404 kickout route)"
       ]
     },
     {
-      "description": "Easter egg click-counter on the Centres empty state (28 clicks) that navigates to the secret forest page.",
-      "reason": "Not part of deployment/connectivity requirements and constitutes a new feature unrelated to deployment fixes.",
+      "description": "Broader public site page content/behavior changes (e.g., Courses page placeholder text, other page adjustments) outside the requested admin/effects scope.",
+      "reason": "REQ-51..REQ-54 do not request changes to public pages like Courses/Centres/Announcements beyond adding site-wide effects/popups support.",
       "evidence": [
-        "frontend/src/pages/CentresPage.tsx"
+        "frontend-file-summaries.txt (describes changes to CoursesPage, CentresPage, and other pages not mentioned in REQ-51..REQ-54)"
       ]
     }
   ],
-  "confidence": 0.74,
+  "confidence": 0.62,
   "changed_files": [
+    "backend/main.mo",
+    "backend/migration.mo",
     "frontend-file-summaries.txt",
-    "frontend/src/App.tsx",
-    "frontend/src/pages/AnnouncementsPage.tsx",
-    "frontend/src/pages/CentresPage.tsx",
-    "frontend/src/pages/MockTestsPage.tsx",
+    "frontend/src/components/effects/AdminEffectPresetPreview.tsx",
+    "frontend/src/components/effects/SiteWideEffectsLayer.tsx",
+    "frontend/src/components/effects/presets/AuroraGlowEffect.tsx",
+    "frontend/src/components/effects/presets/ConfettiBurstEffect.tsx",
+    "frontend/src/components/effects/presets/FallingParticlesEffect.tsx",
+    "frontend/src/components/effects/presets/GlowSweepEffect.tsx",
+    "frontend/src/components/effects/presets/ScreenPulseEffect.tsx",
+    "frontend/src/components/effects/presets/ShimmerWaveEffect.tsx",
+    "frontend/src/components/effects/presets/SparkleTrailEffect.tsx",
+    "frontend/src/components/effects/presets/SpotlightRaysEffect.tsx",
+    "frontend/src/components/effects/siteWideEffectPresets.ts",
+    "frontend/src/components/effects/useSiteWideEffectState.ts",
+    "frontend/src/components/layout/SiteLayout.tsx",
+    "frontend/src/index.css",
+    "frontend/src/pages/AdminPanelPage.tsx",
+    "frontend/tailwind.config.js",
     "project_state.json"
   ]
 }

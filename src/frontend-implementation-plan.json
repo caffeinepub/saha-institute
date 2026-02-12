@@ -1,66 +1,110 @@
 {
   "kind": "implementation_plan",
   "version": "1.0",
-  "title": "Unblock ICP deployment and stabilize frontend actor connectivity",
+  "title": "Admin-controlled site-wide effects and popup announcements (frontend)",
   "requirements": [
     {
-      "id": "REQ-46",
-      "summary": "Remove frontend build/deploy blockers and ensure SPA routes render after deployment on the Internet Computer.",
+      "id": "REQ-51",
+      "summary": "Add an admin-only “Effects & Popups” section to /admin with effect preset selection, popup message input, and a publish/trigger action with previews.",
       "acceptanceCriteria": [
-        "A fresh build of the project completes without errors for both backend (Motoko) and frontend.",
-        "Running the platform’s deployment step (equivalent to `dfx deploy` for the configured canisters) completes successfully without manual intervention.",
-        "After deployment, the frontend loads successfully and the SPA routes render (at minimum: /, /courses, /centres, /reviews, /announcements, /mock-tests, /login, /admin) without returning an unexpected Not Found error."
+        "When a logged-in admin visits /admin, a new clearly labeled section “Effects & Popups” is shown on the page.",
+        "The section includes: (a) an effect preset selector, (b) a text input for a popup message, and (c) a clear action button to publish/trigger.",
+        "The UI includes a small preview/description for each effect preset so an admin can understand what will happen before triggering.",
+        "Non-admin users cannot see or use these controls (they continue to see the existing authentication/access-denied flows)."
       ],
       "file_operations": [
         {
-          "path": "frontend/src/App.tsx",
+          "path": "frontend/src/pages/AdminPanelPage.tsx",
           "operation": "modify",
-          "description": "Adjust router/runtime setup for ICP-friendly SPA navigation (e.g., prefer hash-based routing if needed to avoid asset-canister 404s on deep links) and remove duplicate React Query provider creation (keep a single QueryClientProvider in one place) to prevent runtime/provider conflicts."
+          "description": "Implement a new “Effects & Popups” section inside the existing verified-admin UI branch. Use existing admin gating (Internet Identity + admin verification) from the authorization component patterns already present in this page; Verify the component's usage instructions before implementing. Compose shadcn-ui components (e.g., Card, Button, Input, Label, Alert, and any existing Select/Textarea) to provide: preset selector, per-preset preview/description panel, popup message field, and a primary publish/trigger button. Wire actions to backend actor capabilities already available in the frontend typings (e.g., triggerSiteWideEffect, clearSiteWideEffect, createOrUpdatePopupAnnouncement / deactivate) and display success/error states without exposing the controls to non-admins; Verify the component's usage instructions before implementing."
         },
         {
-          "path": "frontend/src/main.tsx",
-          "operation": "modify",
-          "description": "Align app providers with the updated App.tsx (single React Query provider + Internet Identity provider) to ensure a clean, deterministic bootstrap that builds and runs consistently in the deployed environment."
+          "path": "frontend/src/components/effects/siteWideEffectPresets.ts",
+          "operation": "create",
+          "description": "Define the effect preset catalog used by both the Admin Panel UI and the site-wide renderer: stable preset IDs (matching effectType values), English display names, short descriptions/previews, and defined durations/behavior flags (non-blocking overlays)."
         },
         {
-          "path": "frontend/index.html",
-          "operation": "modify",
-          "description": "Verify the HTML entry is compatible with the chosen routing strategy and ICP asset hosting (ensure asset/script references remain resolvable after deployment and do not cause route-related Not Found behavior)."
+          "path": "frontend/src/components/effects/AdminEffectPresetPreview.tsx",
+          "operation": "create",
+          "description": "Create a small, lightweight preview/description component for each effect preset to be shown in the Admin Panel “Effects & Popups” section (visual swatch and/or animated micro-preview that does not block interaction). Compose shadcn-ui Card/Badge/etc. where helpful; Verify the component's usage instructions before implementing."
         }
       ]
     },
     {
-      "id": "REQ-47",
-      "summary": "Ensure the deployed frontend reliably initializes the backend actor and avoids runtime agent/canister-resolution failures on data-fetching pages.",
+      "id": "REQ-53",
+      "summary": "Add at least 5 new safe effect presets and implement each as a timed, non-blocking site-wide visual overlay that activates from backend-triggered state and cleans up after completion.",
       "acceptanceCriteria": [
-        "Opening the deployed app in a browser shows no blocking console errors related to agent/actor initialization or canister ID resolution.",
-        "Public data-fetching pages that call the actor (e.g., Centres, Announcements, Mock Tests) successfully load and render their empty/loading states or content instead of failing due to backend connectivity issues."
+        "At least 5 additional effect presets are added (names and visuals are safe and non-offensive).",
+        "Each preset has a distinct visible animation/effect (e.g., falling particles, glow sweep, confetti-style burst, subtle screen pulse, etc.).",
+        "Effects can be rendered as full-page overlays or non-blocking overlays, but must not prevent users from clicking navigation or interacting with core pages once the effect ends.",
+        "Each effect has a defined duration and cleans itself up after completion so it does not remain stuck across route changes."
       ],
       "file_operations": [
         {
-          "path": "frontend/src/config.ts",
+          "path": "frontend/src/components/effects/SiteWideEffectsLayer.tsx",
           "operation": "create",
-          "description": "Implement a deployment-safe actor factory (use the selected core-infrastructure component’s backend connection configuration patterns to resolve the deployed canister ID and create an HttpAgent/actor in both local and IC environments; include defensive validation so missing/invalid canister IDs fail gracefully rather than crashing). Verify the component's usage instructions before implementing."
+          "description": "Add a site-wide overlay renderer that listens for the latest effect state from the backend (via a hook) and, when active, renders the matching effect overlay component for a fixed duration, then auto-cleans (unmounts) without blocking clicks (use pointer-events-none where appropriate)."
         },
         {
-          "path": "frontend/src/hooks/useActor.ts",
-          "operation": "modify",
-          "description": "Refactor actor initialization to use the centralized config actor factory; add robust guards for canister ID resolution and optional admin initialization calls (avoid calling access-control initialization if the actor method is unavailable or if required config is missing), and ensure query invalidation remains correct when identity changes. Use the authorization component expectations for login/identity state handling (clear cached data on logout already present; ensure actor creation does not throw on guest access). Verify the component's usage instructions before implementing."
+          "path": "frontend/src/components/effects/useSiteWideEffectState.ts",
+          "operation": "create",
+          "description": "Create a React Query-based hook that fetches the active site-wide effect on initial load and on navigation changes (refresh/navigation/polling patterns only; no real-time). Use the existing useActor hook without modifying immutable files. Handle authorization errors gracefully and treat missing actor as a disabled state."
         },
         {
-          "path": "frontend/src/pages/CentresPage.tsx",
-          "operation": "modify",
-          "description": "Harden data-fetching against transient actor initialization states (ensure the page reliably shows loading/empty states when actor is unavailable and does not surface runtime errors due to actor creation failures)."
+          "path": "frontend/src/components/effects/presets/ConfettiBurstEffect.tsx",
+          "operation": "create",
+          "description": "Implement a distinct, safe 'confetti-style burst' overlay preset (timed, auto-cleanup). Ensure it is non-blocking and does not interfere with navigation."
         },
         {
-          "path": "frontend/src/pages/AnnouncementsPage.tsx",
-          "operation": "modify",
-          "description": "Harden data-fetching against transient actor initialization states (ensure the page reliably shows loading/empty states when actor is unavailable and does not surface runtime errors due to actor creation failures)."
+          "path": "frontend/src/components/effects/presets/FallingParticlesEffect.tsx",
+          "operation": "create",
+          "description": "Implement a distinct 'falling particles' overlay preset (timed, auto-cleanup). Ensure it is non-blocking and does not interfere with navigation."
         },
         {
-          "path": "frontend/src/pages/MockTestsPage.tsx",
+          "path": "frontend/src/components/effects/presets/GlowSweepEffect.tsx",
+          "operation": "create",
+          "description": "Implement a distinct 'glow sweep' overlay preset (timed, auto-cleanup). Ensure it is non-blocking and does not interfere with navigation."
+        },
+        {
+          "path": "frontend/src/components/effects/presets/ScreenPulseEffect.tsx",
+          "operation": "create",
+          "description": "Implement a distinct 'subtle screen pulse' overlay preset (timed, auto-cleanup). Ensure it is non-blocking and does not interfere with navigation."
+        },
+        {
+          "path": "frontend/src/components/effects/presets/SpotlightRaysEffect.tsx",
+          "operation": "create",
+          "description": "Implement a distinct 'soft spotlight rays' overlay preset (timed, auto-cleanup). Ensure it is non-blocking and does not interfere with navigation."
+        },
+        {
+          "path": "frontend/src/components/layout/SiteLayout.tsx",
           "operation": "modify",
-          "description": "Harden data-fetching against transient actor initialization states (ensure the page reliably shows loading/empty states when actor is unavailable and does not surface runtime errors due to actor creation failures)."
+          "description": "Wire the global site-wide effects layer into the app layout so it is present across routes (header/main/footer) and can activate on refresh/navigation without creating new top-level routes."
+        },
+        {
+          "path": "frontend/tailwind.config.js",
+          "operation": "modify",
+          "description": "Add Tailwind keyframes/animations (or extend existing ones) needed for the new effect presets (e.g., confetti drift, glow sweep, pulse, particle fall, ray shimmer) so the overlays can be implemented primarily via Tailwind classes and keep effects consistent with the existing animation approach."
+        }
+      ]
+    },
+    {
+      "id": "REQ-54",
+      "summary": "Add admin-only visual polish to the Admin Panel with tasteful micro-interactions and a distinct styling treatment scoped only to /admin.",
+      "acceptanceCriteria": [
+        "Admin Panel cards and section headers have noticeable but tasteful micro-interactions (hover/press states, subtle gradients/glows, and/or animated accents).",
+        "Admin-only styling does not change the public site theme globally; it applies only within the Admin Panel route and its components.",
+        "All user-facing text remains in English."
+      ],
+      "file_operations": [
+        {
+          "path": "frontend/src/pages/AdminPanelPage.tsx",
+          "operation": "modify",
+          "description": "Enhance Admin Panel visuals with admin-scoped styling: add an admin-only wrapper class on the /admin page root, improve card hover/press states, add subtle gradient/glow accents on headers/section titles, and apply motion micro-interactions using Tailwind utilities (no global theme changes). Keep all user-facing text in English. Compose existing shadcn-ui components rather than editing frontend/src/components/ui/*; Verify the component's usage instructions before implementing."
+        },
+        {
+          "path": "frontend/src/index.css",
+          "operation": "modify",
+          "description": "Add scoped CSS for the Admin Panel route only (e.g., .admin-panel ... selectors) to support distinct admin-only styling treatments and micro-interaction accents that are difficult to express purely in Tailwind, ensuring no public pages are affected."
         }
       ]
     }

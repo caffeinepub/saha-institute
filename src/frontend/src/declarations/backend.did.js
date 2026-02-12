@@ -19,6 +19,22 @@ export const MockTestContent = IDL.Variant({
   'text' : IDL.Text,
 });
 export const Time = IDL.Int;
+export const PopupAnnouncement = IDL.Record({
+  'id' : IDL.Nat,
+  'createdAt' : Time,
+  'audioUrl' : IDL.Opt(IDL.Text),
+  'isActive' : IDL.Bool,
+  'message' : IDL.Text,
+  'videoUrl' : IDL.Opt(IDL.Text),
+});
+export const SiteWideEffect = IDL.Record({
+  'id' : IDL.Nat,
+  'active' : IDL.Bool,
+  'createdAt' : Time,
+  'description' : IDL.Text,
+  'effectType' : IDL.Text,
+  'triggerEpisode' : IDL.Text,
+});
 export const Announcement = IDL.Record({
   'id' : IDL.Nat,
   'createdAt' : Time,
@@ -52,16 +68,41 @@ export const idlService = IDL.Service({
       [],
       [],
     ),
+  'adminToggleEffectActive' : IDL.Func([IDL.Bool], [], []),
   'assignCallerUserRole' : IDL.Func([IDL.Principal, UserRole], [], []),
+  'clearSiteWideEffect' : IDL.Func([], [], []),
   'createAnnouncement' : IDL.Func(
       [IDL.Text, IDL.Opt(IDL.Text), IDL.Opt(IDL.Text)],
       [IDL.Nat],
       [],
     ),
   'createMockTest' : IDL.Func([IDL.Text, MockTestContent], [IDL.Nat], []),
+  'createOrUpdatePopupAnnouncement' : IDL.Func(
+      [IDL.Opt(IDL.Nat), IDL.Text, IDL.Opt(IDL.Text), IDL.Opt(IDL.Text)],
+      [IDL.Nat],
+      [],
+    ),
+  'deactivatePopupAnnouncement' : IDL.Func([IDL.Nat], [], []),
   'deleteAnnouncement' : IDL.Func([IDL.Nat], [], []),
   'deleteCentre' : IDL.Func([IDL.Text], [], []),
   'deleteMockTest' : IDL.Func([IDL.Nat], [], []),
+  'deletePopupAnnouncement' : IDL.Func([IDL.Nat], [], []),
+  'getActivePopupAnnouncements' : IDL.Func(
+      [],
+      [IDL.Vec(PopupAnnouncement)],
+      ['query'],
+    ),
+  'getActiveSiteWideEffect' : IDL.Func(
+      [],
+      [IDL.Opt(SiteWideEffect)],
+      ['query'],
+    ),
+  'getAllPopupsSorted' : IDL.Func([], [IDL.Vec(PopupAnnouncement)], ['query']),
+  'getAllPopupsSortedById' : IDL.Func(
+      [],
+      [IDL.Vec(PopupAnnouncement)],
+      ['query'],
+    ),
   'getAnnouncements' : IDL.Func([], [IDL.Vec(Announcement)], ['query']),
   'getCallerUserProfile' : IDL.Func([], [IDL.Opt(UserProfile)], ['query']),
   'getCallerUserRole' : IDL.Func([], [UserRole], ['query']),
@@ -69,13 +110,36 @@ export const idlService = IDL.Service({
   'getEmbedConfig' : IDL.Func([], [EmbedConfig], ['query']),
   'getMockTests' : IDL.Func([], [IDL.Vec(MockTest)], ['query']),
   'getMockTestsByType' : IDL.Func([IDL.Text], [IDL.Vec(MockTest)], ['query']),
+  'getPopupAnnouncementById' : IDL.Func(
+      [IDL.Nat],
+      [IDL.Opt(PopupAnnouncement)],
+      ['query'],
+    ),
+  'getPopupsPaged' : IDL.Func(
+      [IDL.Nat, IDL.Nat],
+      [
+        IDL.Record({
+          'hasNextPage' : IDL.Bool,
+          'popups' : IDL.Vec(PopupAnnouncement),
+        }),
+      ],
+      ['query'],
+    ),
   'getUserProfile' : IDL.Func(
       [IDL.Principal],
       [IDL.Opt(UserProfile)],
       ['query'],
     ),
   'isCallerAdmin' : IDL.Func([], [IDL.Bool], ['query']),
+  'isEffectActive' : IDL.Func([IDL.Text], [IDL.Bool], ['query']),
+  'revokeAdminAccess' : IDL.Func([], [], []),
   'saveCallerUserProfile' : IDL.Func([UserProfile], [], []),
+  'triggerSiteWideEffect' : IDL.Func(
+      [IDL.Text, IDL.Text, IDL.Text],
+      [IDL.Nat],
+      [],
+    ),
+  'unlockAdminAccess' : IDL.Func([IDL.Text], [IDL.Bool], []),
   'updateAnnouncement' : IDL.Func(
       [IDL.Nat, IDL.Text, IDL.Opt(IDL.Text), IDL.Opt(IDL.Text)],
       [],
@@ -99,6 +163,22 @@ export const idlFactory = ({ IDL }) => {
     'text' : IDL.Text,
   });
   const Time = IDL.Int;
+  const PopupAnnouncement = IDL.Record({
+    'id' : IDL.Nat,
+    'createdAt' : Time,
+    'audioUrl' : IDL.Opt(IDL.Text),
+    'isActive' : IDL.Bool,
+    'message' : IDL.Text,
+    'videoUrl' : IDL.Opt(IDL.Text),
+  });
+  const SiteWideEffect = IDL.Record({
+    'id' : IDL.Nat,
+    'active' : IDL.Bool,
+    'createdAt' : Time,
+    'description' : IDL.Text,
+    'effectType' : IDL.Text,
+    'triggerEpisode' : IDL.Text,
+  });
   const Announcement = IDL.Record({
     'id' : IDL.Nat,
     'createdAt' : Time,
@@ -132,16 +212,45 @@ export const idlFactory = ({ IDL }) => {
         [],
         [],
       ),
+    'adminToggleEffectActive' : IDL.Func([IDL.Bool], [], []),
     'assignCallerUserRole' : IDL.Func([IDL.Principal, UserRole], [], []),
+    'clearSiteWideEffect' : IDL.Func([], [], []),
     'createAnnouncement' : IDL.Func(
         [IDL.Text, IDL.Opt(IDL.Text), IDL.Opt(IDL.Text)],
         [IDL.Nat],
         [],
       ),
     'createMockTest' : IDL.Func([IDL.Text, MockTestContent], [IDL.Nat], []),
+    'createOrUpdatePopupAnnouncement' : IDL.Func(
+        [IDL.Opt(IDL.Nat), IDL.Text, IDL.Opt(IDL.Text), IDL.Opt(IDL.Text)],
+        [IDL.Nat],
+        [],
+      ),
+    'deactivatePopupAnnouncement' : IDL.Func([IDL.Nat], [], []),
     'deleteAnnouncement' : IDL.Func([IDL.Nat], [], []),
     'deleteCentre' : IDL.Func([IDL.Text], [], []),
     'deleteMockTest' : IDL.Func([IDL.Nat], [], []),
+    'deletePopupAnnouncement' : IDL.Func([IDL.Nat], [], []),
+    'getActivePopupAnnouncements' : IDL.Func(
+        [],
+        [IDL.Vec(PopupAnnouncement)],
+        ['query'],
+      ),
+    'getActiveSiteWideEffect' : IDL.Func(
+        [],
+        [IDL.Opt(SiteWideEffect)],
+        ['query'],
+      ),
+    'getAllPopupsSorted' : IDL.Func(
+        [],
+        [IDL.Vec(PopupAnnouncement)],
+        ['query'],
+      ),
+    'getAllPopupsSortedById' : IDL.Func(
+        [],
+        [IDL.Vec(PopupAnnouncement)],
+        ['query'],
+      ),
     'getAnnouncements' : IDL.Func([], [IDL.Vec(Announcement)], ['query']),
     'getCallerUserProfile' : IDL.Func([], [IDL.Opt(UserProfile)], ['query']),
     'getCallerUserRole' : IDL.Func([], [UserRole], ['query']),
@@ -149,13 +258,36 @@ export const idlFactory = ({ IDL }) => {
     'getEmbedConfig' : IDL.Func([], [EmbedConfig], ['query']),
     'getMockTests' : IDL.Func([], [IDL.Vec(MockTest)], ['query']),
     'getMockTestsByType' : IDL.Func([IDL.Text], [IDL.Vec(MockTest)], ['query']),
+    'getPopupAnnouncementById' : IDL.Func(
+        [IDL.Nat],
+        [IDL.Opt(PopupAnnouncement)],
+        ['query'],
+      ),
+    'getPopupsPaged' : IDL.Func(
+        [IDL.Nat, IDL.Nat],
+        [
+          IDL.Record({
+            'hasNextPage' : IDL.Bool,
+            'popups' : IDL.Vec(PopupAnnouncement),
+          }),
+        ],
+        ['query'],
+      ),
     'getUserProfile' : IDL.Func(
         [IDL.Principal],
         [IDL.Opt(UserProfile)],
         ['query'],
       ),
     'isCallerAdmin' : IDL.Func([], [IDL.Bool], ['query']),
+    'isEffectActive' : IDL.Func([IDL.Text], [IDL.Bool], ['query']),
+    'revokeAdminAccess' : IDL.Func([], [], []),
     'saveCallerUserProfile' : IDL.Func([UserProfile], [], []),
+    'triggerSiteWideEffect' : IDL.Func(
+        [IDL.Text, IDL.Text, IDL.Text],
+        [IDL.Nat],
+        [],
+      ),
+    'unlockAdminAccess' : IDL.Func([IDL.Text], [IDL.Bool], []),
     'updateAnnouncement' : IDL.Func(
         [IDL.Nat, IDL.Text, IDL.Opt(IDL.Text), IDL.Opt(IDL.Text)],
         [],

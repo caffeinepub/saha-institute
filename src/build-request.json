@@ -1,66 +1,100 @@
 {
   "kind": "build_request",
-  "title": "Fix deployment and successfully deploy the Saha Institute app",
+  "title": "Expand Admin Panel with additional visual effects and admin-controlled site-wide effects + popups",
   "priority": "high",
   "requirements": [
     {
-      "id": "REQ-46",
-      "text": "Investigate the current deployment failure and apply the necessary code/configuration fixes so the project deploys successfully to the Internet Computer.",
-      "target": "both",
+      "id": "REQ-51",
+      "text": "Add an “Effects & Popups” section to the Admin Panel (/admin) that is visible only to verified admins and provides UI controls to trigger site-wide visual effects and site-wide popup announcements.",
+      "target": "frontend",
       "source": {
         "messageIds": [
-          "msg-2"
+          "msg-recent-16"
         ],
         "quotes": [
-          "DEPLOY"
+          "Start the build and add more effects to admin pannel"
         ]
       },
       "acceptanceCriteria": [
-        "A fresh build of the project completes without errors for both backend (Motoko) and frontend.",
-        "Running the platform’s deployment step (equivalent to `dfx deploy` for the configured canisters) completes successfully without manual intervention.",
-        "After deployment, the frontend loads successfully and the SPA routes render (at minimum: /, /courses, /centres, /reviews, /announcements, /mock-tests, /login, /admin) without returning an unexpected Not Found error."
+        "When a logged-in admin visits /admin, a new clearly labeled section “Effects & Popups” is shown on the page.",
+        "The section includes: (a) an effect preset selector, (b) a text input for a popup message, and (c) a clear action button to publish/trigger.",
+        "The UI includes a small preview/description for each effect preset so an admin can understand what will happen before triggering.",
+        "Non-admin users cannot see or use these controls (they continue to see the existing authentication/access-denied flows)."
       ]
     },
     {
-      "id": "REQ-47",
-      "text": "Ensure the deployed frontend correctly connects to the deployed backend canister (actor) so core pages can fetch data without runtime errors.",
-      "target": "both",
+      "id": "REQ-52",
+      "text": "Implement backend support for admin-triggered site-wide effects and site-wide popup announcements, stored in the single Motoko actor and retrievable by the frontend on page load/navigation (no real-time).",
+      "target": "backend",
       "source": {
         "messageIds": [
-          "msg-2"
+          "msg-recent-12",
+          "msg-recent-16"
         ],
         "quotes": [
-          "DEPLOY"
+          "Send mock tests, announcements and admin abuse (effects and pop up announcements)",
+          "Start the build and add more effects to admin pannel"
         ]
       },
       "acceptanceCriteria": [
-        "Opening the deployed app in a browser shows no blocking console errors related to agent/actor initialization or canister ID resolution.",
-        "Public data-fetching pages that call the actor (e.g., Centres, Announcements, Mock Tests) successfully load and render their empty/loading states or content instead of failing due to backend connectivity issues."
+        "Backend exposes an admin-only update method to set the current site-wide effect preset and optionally a popup message payload.",
+        "Backend exposes a public (or user-readable) query method that returns the latest active effect + popup announcement payload suitable for showing to normal users on refresh/navigation.",
+        "Only callers with admin privileges can publish/trigger effects/popups; non-admin calls trap or are rejected consistently with existing authorization patterns.",
+        "The stored effect/popup state persists for the canister lifetime (and is compatible with existing canister state management approach in this project)."
+      ]
+    },
+    {
+      "id": "REQ-53",
+      "text": "Add more effect presets beyond the current list, and ensure each preset has a corresponding frontend visual implementation that can be activated from the backend-triggered state without breaking normal site navigation.",
+      "target": "frontend",
+      "source": {
+        "messageIds": [
+          "msg-recent-16"
+        ],
+        "quotes": [
+          "add more effects to admin pannel"
+        ]
+      },
+      "acceptanceCriteria": [
+        "At least 5 additional effect presets are added (names and visuals are safe and non-offensive).",
+        "Each preset has a distinct visible animation/effect (e.g., falling particles, glow sweep, confetti-style burst, subtle screen pulse, etc.).",
+        "Effects can be rendered as full-page overlays or non-blocking overlays, but must not prevent users from clicking navigation or interacting with core pages once the effect ends.",
+        "Each effect has a defined duration and cleans itself up after completion so it does not remain stuck across route changes."
+      ]
+    },
+    {
+      "id": "REQ-54",
+      "text": "Improve the Admin Panel page visual experience (“more effects”) by adding polished motion/hover micro-interactions and a distinct admin-only styling treatment that still matches the site’s education/coaching theme.",
+      "target": "frontend",
+      "source": {
+        "messageIds": [
+          "msg-recent-16"
+        ],
+        "quotes": [
+          "add more effects to admin pannel"
+        ]
+      },
+      "acceptanceCriteria": [
+        "Admin Panel cards and section headers have noticeable but tasteful micro-interactions (hover/press states, subtle gradients/glows, and/or animated accents).",
+        "Admin-only styling does not change the public site theme globally; it applies only within the Admin Panel route and its components.",
+        "All user-facing text remains in English."
       ]
     }
   ],
   "constraints": [
-    "Backend must remain a single Motoko actor in backend/main.mo (no additional backend services).",
-    "Do not edit files under frontend/src/components/ui or any paths listed as immutable in SYSTEM_CONTEXT."
+    "Backend must remain a single Motoko actor in backend/main.mo; do not introduce additional backend services.",
+    "Do not edit frontend immutable paths: frontend/src/hooks/useInternetIdentity.ts, frontend/src/hooks/useInternetIdentity.tsx, frontend/src/hooks/useActor.ts, frontend/src/main.tsx, frontend/src/components/ui/* (compose these components instead).",
+    "Do not use WebSockets or any real-time infrastructure; site-wide effects/popups must be delivered via refresh/navigation/polling patterns only.",
+    "Use Internet Identity as the only authentication mechanism."
   ],
   "nonGoals": [
-    "Adding new product features unrelated to deployment.",
-    "Changing the visual design/theme beyond what is required to unblock deployment."
+    "Implementing true real-time broadcasting of effects/popups to currently-online users.",
+    "Adding third-party admin/auth providers (Auth0, Google, Facebook, etc.).",
+    "Adding external databases or off-chain storage.",
+    "Creating or embedding copyrighted media for effects (effects should be implemented with CSS/canvas/video only when legally provided elsewhere)."
   ],
   "imageRequirements": {
     "required": [],
     "edits": []
-  },
-  "userProfileUpdate": {
-    "goalsToAdd": [],
-    "goalsToRemove": [],
-    "preferencesToAdd": [
-      "Use English for any user-facing text."
-    ],
-    "preferencesToRemove": [],
-    "miscToAdd": [],
-    "miscToRemove": [],
-    "fieldsToSet": {},
-    "fieldsToDelete": []
   }
 }

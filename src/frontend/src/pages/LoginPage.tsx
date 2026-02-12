@@ -62,6 +62,16 @@ export default function LoginPage() {
   };
 
   const handleLogout = async () => {
+    // Best-effort revoke admin access before logout
+    if (actor) {
+      try {
+        await actor.revokeAdminAccess();
+      } catch (error) {
+        // Swallow errors - logout should proceed regardless
+        console.warn('Failed to revoke admin access during logout:', error);
+      }
+    }
+    
     await clear();
     queryClient.clear();
     navigate({ to: '/' });

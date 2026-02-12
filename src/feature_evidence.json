@@ -2,10 +2,12 @@
   "kind": "feature_evidence_report",
   "features": [
     {
-      "featureId": "feature-investigate-the-current-deployment-failure-and-apply-the-necessary-code-configuration-fixes-so-the-project-deploys-successfully-to-the-internet-computer",
-      "featureTitle": "Investigate the current deployment failure and apply the necessary code/configuration fixes so the project deploys successfully to the Internet Computer.",
+      "featureId": "feature-add-an-effects-popups-section-to-the-admin-panel-admin-that-is-visible-only-to-verified-admins-and-provides-ui-controls-to-trigger-site-wide-visual-effects-and-site-wide-popup-announcements",
+      "featureTitle": "Add an “Effects & Popups” section to the Admin Panel (/admin) that is visible only to verified admins and provides UI controls to trigger site-wide visual effects and site-wide popup announcements.",
       "files": [
-        "frontend/src/App.tsx"
+        "frontend/src/components/effects/AdminEffectPresetPreview.tsx",
+        "frontend/src/components/effects/siteWideEffectPresets.ts",
+        "frontend/src/pages/AdminPanelPage.tsx"
       ],
       "components": [
         "authorization@4.0.0",
@@ -16,17 +18,23 @@
         "github-export-icp-cli@1.0.0"
       ],
       "testIds": [
-        "REQ-46"
+        "REQ-51"
       ],
       "confidence": "high"
     },
     {
-      "featureId": "feature-ensure-the-deployed-frontend-correctly-connects-to-the-deployed-backend-canister-actor-so-core-pages-can-fetch-data-without-runtime-errors",
-      "featureTitle": "Ensure the deployed frontend correctly connects to the deployed backend canister (actor) so core pages can fetch data without runtime errors.",
+      "featureId": "feature-add-more-effect-presets-beyond-the-current-list-and-ensure-each-preset-has-a-corresponding-frontend-visual-implementation-that-can-be-activated-from-the-backend-triggered-state-without-breaking-normal-site-navigation",
+      "featureTitle": "Add more effect presets beyond the current list, and ensure each preset has a corresponding frontend visual implementation that can be activated from the backend-triggered state without breaking normal site navigation.",
       "files": [
-        "frontend/src/pages/AnnouncementsPage.tsx",
-        "frontend/src/pages/CentresPage.tsx",
-        "frontend/src/pages/MockTestsPage.tsx"
+        "frontend/src/components/effects/SiteWideEffectsLayer.tsx",
+        "frontend/src/components/effects/presets/ConfettiBurstEffect.tsx",
+        "frontend/src/components/effects/presets/FallingParticlesEffect.tsx",
+        "frontend/src/components/effects/presets/GlowSweepEffect.tsx",
+        "frontend/src/components/effects/presets/ScreenPulseEffect.tsx",
+        "frontend/src/components/effects/presets/SpotlightRaysEffect.tsx",
+        "frontend/src/components/effects/useSiteWideEffectState.ts",
+        "frontend/src/components/layout/SiteLayout.tsx",
+        "frontend/tailwind.config.js"
       ],
       "components": [
         "authorization@4.0.0",
@@ -37,7 +45,27 @@
         "github-export-icp-cli@1.0.0"
       ],
       "testIds": [
-        "REQ-47"
+        "REQ-53"
+      ],
+      "confidence": "high"
+    },
+    {
+      "featureId": "feature-improve-the-admin-panel-page-visual-experience-more-effects-by-adding-polished-motion-hover-micro-interactions-and-a-distinct-admin-only-styling-treatment-that-still-matches-the-site-s-education-coaching-theme",
+      "featureTitle": "Improve the Admin Panel page visual experience (“more effects”) by adding polished motion/hover micro-interactions and a distinct admin-only styling treatment that still matches the site’s education/coaching theme.",
+      "files": [
+        "frontend/src/index.css",
+        "frontend/src/pages/AdminPanelPage.tsx"
+      ],
+      "components": [
+        "authorization@4.0.0",
+        "core-infrastructure@1.0.2",
+        "shadcn-ui@1.0.0",
+        "build-template-react@1.0.0",
+        "initial-app@1.0.0",
+        "github-export-icp-cli@1.0.0"
+      ],
+      "testIds": [
+        "REQ-54"
       ],
       "confidence": "high"
     }

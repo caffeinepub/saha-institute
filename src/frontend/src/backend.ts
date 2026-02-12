@@ -89,11 +89,26 @@ export class ExternalBlob {
         return this;
     }
 }
-export interface MockTest {
+export interface PopupAnnouncement {
     id: bigint;
-    title: string;
-    content: MockTestContent;
     createdAt: Time;
+    audioUrl?: string;
+    isActive: boolean;
+    message: string;
+    videoUrl?: string;
+}
+export interface SiteWideEffect {
+    id: bigint;
+    active: boolean;
+    createdAt: Time;
+    description: string;
+    effectType: string;
+    triggerEpisode: string;
+}
+export interface EmbedConfig {
+    announcementVideoEmbedUrl?: string;
+    youtubeIntroUrl: string;
+    youtubeFacebookPageUrl: string;
 }
 export type Time = bigint;
 export type MockTestContent = {
@@ -122,10 +137,11 @@ export interface Centre {
 export interface UserProfile {
     name: string;
 }
-export interface EmbedConfig {
-    announcementVideoEmbedUrl?: string;
-    youtubeIntroUrl: string;
-    youtubeFacebookPageUrl: string;
+export interface MockTest {
+    id: bigint;
+    title: string;
+    content: MockTestContent;
+    createdAt: Time;
 }
 export enum UserRole {
     admin = "admin",
@@ -135,12 +151,21 @@ export enum UserRole {
 export interface backendInterface {
     _initializeAccessControlWithSecret(userSecret: string): Promise<void>;
     addOrUpdateCentre(id: string, name: string, phoneNumbers: Array<string>, address: string | null): Promise<void>;
+    adminToggleEffectActive(isActive: boolean): Promise<void>;
     assignCallerUserRole(user: Principal, role: UserRole): Promise<void>;
+    clearSiteWideEffect(): Promise<void>;
     createAnnouncement(text: string, videoUrl: string | null, audioUrl: string | null): Promise<bigint>;
     createMockTest(title: string, content: MockTestContent): Promise<bigint>;
+    createOrUpdatePopupAnnouncement(id: bigint | null, message: string, videoUrl: string | null, audioUrl: string | null): Promise<bigint>;
+    deactivatePopupAnnouncement(id: bigint): Promise<void>;
     deleteAnnouncement(id: bigint): Promise<void>;
     deleteCentre(id: string): Promise<void>;
     deleteMockTest(id: bigint): Promise<void>;
+    deletePopupAnnouncement(id: bigint): Promise<void>;
+    getActivePopupAnnouncements(): Promise<Array<PopupAnnouncement>>;
+    getActiveSiteWideEffect(): Promise<SiteWideEffect | null>;
+    getAllPopupsSorted(): Promise<Array<PopupAnnouncement>>;
+    getAllPopupsSortedById(): Promise<Array<PopupAnnouncement>>;
     getAnnouncements(): Promise<Array<Announcement>>;
     getCallerUserProfile(): Promise<UserProfile | null>;
     getCallerUserRole(): Promise<UserRole>;
@@ -148,14 +173,23 @@ export interface backendInterface {
     getEmbedConfig(): Promise<EmbedConfig>;
     getMockTests(): Promise<Array<MockTest>>;
     getMockTestsByType(contentType: string): Promise<Array<MockTest>>;
+    getPopupAnnouncementById(id: bigint): Promise<PopupAnnouncement | null>;
+    getPopupsPaged(pageSize: bigint, pageNum: bigint): Promise<{
+        hasNextPage: boolean;
+        popups: Array<PopupAnnouncement>;
+    }>;
     getUserProfile(user: Principal): Promise<UserProfile | null>;
     isCallerAdmin(): Promise<boolean>;
+    isEffectActive(effectType: string): Promise<boolean>;
+    revokeAdminAccess(): Promise<void>;
     saveCallerUserProfile(profile: UserProfile): Promise<void>;
+    triggerSiteWideEffect(description: string, effectType: string, triggerEpisode: string): Promise<bigint>;
+    unlockAdminAccess(accessCode: string): Promise<boolean>;
     updateAnnouncement(id: bigint, text: string, videoUrl: string | null, audioUrl: string | null): Promise<void>;
     updateEmbedConfig(config: EmbedConfig): Promise<void>;
     updateMockTest(id: bigint, title: string, content: MockTestContent): Promise<void>;
 }
-import type { Announcement as _Announcement, Centre as _Centre, EmbedConfig as _EmbedConfig, MockTest as _MockTest, MockTestContent as _MockTestContent, Time as _Time, UserProfile as _UserProfile, UserRole as _UserRole } from "./declarations/backend.did.d.ts";
+import type { Announcement as _Announcement, Centre as _Centre, EmbedConfig as _EmbedConfig, MockTest as _MockTest, MockTestContent as _MockTestContent, PopupAnnouncement as _PopupAnnouncement, SiteWideEffect as _SiteWideEffect, Time as _Time, UserProfile as _UserProfile, UserRole as _UserRole } from "./declarations/backend.did.d.ts";
 export class Backend implements backendInterface {
     constructor(private actor: ActorSubclass<_SERVICE>, private _uploadFile: (file: ExternalBlob) => Promise<Uint8Array>, private _downloadFile: (file: Uint8Array) => Promise<ExternalBlob>, private processError?: (error: unknown) => never){}
     async _initializeAccessControlWithSecret(arg0: string): Promise<void> {
@@ -186,6 +220,20 @@ export class Backend implements backendInterface {
             return result;
         }
     }
+    async adminToggleEffectActive(arg0: boolean): Promise<void> {
+        if (this.processError) {
+            try {
+                const result = await this.actor.adminToggleEffectActive(arg0);
+                return result;
+            } catch (e) {
+                this.processError(e);
+                throw new Error("unreachable");
+            }
+        } else {
+            const result = await this.actor.adminToggleEffectActive(arg0);
+            return result;
+        }
+    }
     async assignCallerUserRole(arg0: Principal, arg1: UserRole): Promise<void> {
         if (this.processError) {
             try {
@@ -197,6 +245,20 @@ export class Backend implements backendInterface {
             }
         } else {
             const result = await this.actor.assignCallerUserRole(arg0, to_candid_UserRole_n2(this._uploadFile, this._downloadFile, arg1));
+            return result;
+        }
+    }
+    async clearSiteWideEffect(): Promise<void> {
+        if (this.processError) {
+            try {
+                const result = await this.actor.clearSiteWideEffect();
+                return result;
+            } catch (e) {
+                this.processError(e);
+                throw new Error("unreachable");
+            }
+        } else {
+            const result = await this.actor.clearSiteWideEffect();
             return result;
         }
     }
@@ -225,6 +287,34 @@ export class Backend implements backendInterface {
             }
         } else {
             const result = await this.actor.createMockTest(arg0, to_candid_MockTestContent_n4(this._uploadFile, this._downloadFile, arg1));
+            return result;
+        }
+    }
+    async createOrUpdatePopupAnnouncement(arg0: bigint | null, arg1: string, arg2: string | null, arg3: string | null): Promise<bigint> {
+        if (this.processError) {
+            try {
+                const result = await this.actor.createOrUpdatePopupAnnouncement(to_candid_opt_n6(this._uploadFile, this._downloadFile, arg0), arg1, to_candid_opt_n1(this._uploadFile, this._downloadFile, arg2), to_candid_opt_n1(this._uploadFile, this._downloadFile, arg3));
+                return result;
+            } catch (e) {
+                this.processError(e);
+                throw new Error("unreachable");
+            }
+        } else {
+            const result = await this.actor.createOrUpdatePopupAnnouncement(to_candid_opt_n6(this._uploadFile, this._downloadFile, arg0), arg1, to_candid_opt_n1(this._uploadFile, this._downloadFile, arg2), to_candid_opt_n1(this._uploadFile, this._downloadFile, arg3));
+            return result;
+        }
+    }
+    async deactivatePopupAnnouncement(arg0: bigint): Promise<void> {
+        if (this.processError) {
+            try {
+                const result = await this.actor.deactivatePopupAnnouncement(arg0);
+                return result;
+            } catch (e) {
+                this.processError(e);
+                throw new Error("unreachable");
+            }
+        } else {
+            const result = await this.actor.deactivatePopupAnnouncement(arg0);
             return result;
         }
     }
@@ -270,116 +360,217 @@ export class Backend implements backendInterface {
             return result;
         }
     }
+    async deletePopupAnnouncement(arg0: bigint): Promise<void> {
+        if (this.processError) {
+            try {
+                const result = await this.actor.deletePopupAnnouncement(arg0);
+                return result;
+            } catch (e) {
+                this.processError(e);
+                throw new Error("unreachable");
+            }
+        } else {
+            const result = await this.actor.deletePopupAnnouncement(arg0);
+            return result;
+        }
+    }
+    async getActivePopupAnnouncements(): Promise<Array<PopupAnnouncement>> {
+        if (this.processError) {
+            try {
+                const result = await this.actor.getActivePopupAnnouncements();
+                return from_candid_vec_n7(this._uploadFile, this._downloadFile, result);
+            } catch (e) {
+                this.processError(e);
+                throw new Error("unreachable");
+            }
+        } else {
+            const result = await this.actor.getActivePopupAnnouncements();
+            return from_candid_vec_n7(this._uploadFile, this._downloadFile, result);
+        }
+    }
+    async getActiveSiteWideEffect(): Promise<SiteWideEffect | null> {
+        if (this.processError) {
+            try {
+                const result = await this.actor.getActiveSiteWideEffect();
+                return from_candid_opt_n11(this._uploadFile, this._downloadFile, result);
+            } catch (e) {
+                this.processError(e);
+                throw new Error("unreachable");
+            }
+        } else {
+            const result = await this.actor.getActiveSiteWideEffect();
+            return from_candid_opt_n11(this._uploadFile, this._downloadFile, result);
+        }
+    }
+    async getAllPopupsSorted(): Promise<Array<PopupAnnouncement>> {
+        if (this.processError) {
+            try {
+                const result = await this.actor.getAllPopupsSorted();
+                return from_candid_vec_n7(this._uploadFile, this._downloadFile, result);
+            } catch (e) {
+                this.processError(e);
+                throw new Error("unreachable");
+            }
+        } else {
+            const result = await this.actor.getAllPopupsSorted();
+            return from_candid_vec_n7(this._uploadFile, this._downloadFile, result);
+        }
+    }
+    async getAllPopupsSortedById(): Promise<Array<PopupAnnouncement>> {
+        if (this.processError) {
+            try {
+                const result = await this.actor.getAllPopupsSortedById();
+                return from_candid_vec_n7(this._uploadFile, this._downloadFile, result);
+            } catch (e) {
+                this.processError(e);
+                throw new Error("unreachable");
+            }
+        } else {
+            const result = await this.actor.getAllPopupsSortedById();
+            return from_candid_vec_n7(this._uploadFile, this._downloadFile, result);
+        }
+    }
     async getAnnouncements(): Promise<Array<Announcement>> {
         if (this.processError) {
             try {
                 const result = await this.actor.getAnnouncements();
-                return from_candid_vec_n6(this._uploadFile, this._downloadFile, result);
+                return from_candid_vec_n12(this._uploadFile, this._downloadFile, result);
             } catch (e) {
                 this.processError(e);
                 throw new Error("unreachable");
             }
         } else {
             const result = await this.actor.getAnnouncements();
-            return from_candid_vec_n6(this._uploadFile, this._downloadFile, result);
+            return from_candid_vec_n12(this._uploadFile, this._downloadFile, result);
         }
     }
     async getCallerUserProfile(): Promise<UserProfile | null> {
         if (this.processError) {
             try {
                 const result = await this.actor.getCallerUserProfile();
-                return from_candid_opt_n10(this._uploadFile, this._downloadFile, result);
+                return from_candid_opt_n15(this._uploadFile, this._downloadFile, result);
             } catch (e) {
                 this.processError(e);
                 throw new Error("unreachable");
             }
         } else {
             const result = await this.actor.getCallerUserProfile();
-            return from_candid_opt_n10(this._uploadFile, this._downloadFile, result);
+            return from_candid_opt_n15(this._uploadFile, this._downloadFile, result);
         }
     }
     async getCallerUserRole(): Promise<UserRole> {
         if (this.processError) {
             try {
                 const result = await this.actor.getCallerUserRole();
-                return from_candid_UserRole_n11(this._uploadFile, this._downloadFile, result);
+                return from_candid_UserRole_n16(this._uploadFile, this._downloadFile, result);
             } catch (e) {
                 this.processError(e);
                 throw new Error("unreachable");
             }
         } else {
             const result = await this.actor.getCallerUserRole();
-            return from_candid_UserRole_n11(this._uploadFile, this._downloadFile, result);
+            return from_candid_UserRole_n16(this._uploadFile, this._downloadFile, result);
         }
     }
     async getCentres(): Promise<Array<Centre>> {
         if (this.processError) {
             try {
                 const result = await this.actor.getCentres();
-                return from_candid_vec_n13(this._uploadFile, this._downloadFile, result);
+                return from_candid_vec_n18(this._uploadFile, this._downloadFile, result);
             } catch (e) {
                 this.processError(e);
                 throw new Error("unreachable");
             }
         } else {
             const result = await this.actor.getCentres();
-            return from_candid_vec_n13(this._uploadFile, this._downloadFile, result);
+            return from_candid_vec_n18(this._uploadFile, this._downloadFile, result);
         }
     }
     async getEmbedConfig(): Promise<EmbedConfig> {
         if (this.processError) {
             try {
                 const result = await this.actor.getEmbedConfig();
-                return from_candid_EmbedConfig_n16(this._uploadFile, this._downloadFile, result);
+                return from_candid_EmbedConfig_n21(this._uploadFile, this._downloadFile, result);
             } catch (e) {
                 this.processError(e);
                 throw new Error("unreachable");
             }
         } else {
             const result = await this.actor.getEmbedConfig();
-            return from_candid_EmbedConfig_n16(this._uploadFile, this._downloadFile, result);
+            return from_candid_EmbedConfig_n21(this._uploadFile, this._downloadFile, result);
         }
     }
     async getMockTests(): Promise<Array<MockTest>> {
         if (this.processError) {
             try {
                 const result = await this.actor.getMockTests();
-                return from_candid_vec_n18(this._uploadFile, this._downloadFile, result);
+                return from_candid_vec_n23(this._uploadFile, this._downloadFile, result);
             } catch (e) {
                 this.processError(e);
                 throw new Error("unreachable");
             }
         } else {
             const result = await this.actor.getMockTests();
-            return from_candid_vec_n18(this._uploadFile, this._downloadFile, result);
+            return from_candid_vec_n23(this._uploadFile, this._downloadFile, result);
         }
     }
     async getMockTestsByType(arg0: string): Promise<Array<MockTest>> {
         if (this.processError) {
             try {
                 const result = await this.actor.getMockTestsByType(arg0);
-                return from_candid_vec_n18(this._uploadFile, this._downloadFile, result);
+                return from_candid_vec_n23(this._uploadFile, this._downloadFile, result);
             } catch (e) {
                 this.processError(e);
                 throw new Error("unreachable");
             }
         } else {
             const result = await this.actor.getMockTestsByType(arg0);
-            return from_candid_vec_n18(this._uploadFile, this._downloadFile, result);
+            return from_candid_vec_n23(this._uploadFile, this._downloadFile, result);
+        }
+    }
+    async getPopupAnnouncementById(arg0: bigint): Promise<PopupAnnouncement | null> {
+        if (this.processError) {
+            try {
+                const result = await this.actor.getPopupAnnouncementById(arg0);
+                return from_candid_opt_n28(this._uploadFile, this._downloadFile, result);
+            } catch (e) {
+                this.processError(e);
+                throw new Error("unreachable");
+            }
+        } else {
+            const result = await this.actor.getPopupAnnouncementById(arg0);
+            return from_candid_opt_n28(this._uploadFile, this._downloadFile, result);
+        }
+    }
+    async getPopupsPaged(arg0: bigint, arg1: bigint): Promise<{
+        hasNextPage: boolean;
+        popups: Array<PopupAnnouncement>;
+    }> {
+        if (this.processError) {
+            try {
+                const result = await this.actor.getPopupsPaged(arg0, arg1);
+                return from_candid_record_n29(this._uploadFile, this._downloadFile, result);
+            } catch (e) {
+                this.processError(e);
+                throw new Error("unreachable");
+            }
+        } else {
+            const result = await this.actor.getPopupsPaged(arg0, arg1);
+            return from_candid_record_n29(this._uploadFile, this._downloadFile, result);
         }
     }
     async getUserProfile(arg0: Principal): Promise<UserProfile | null> {
         if (this.processError) {
             try {
                 const result = await this.actor.getUserProfile(arg0);
-                return from_candid_opt_n10(this._uploadFile, this._downloadFile, result);
+                return from_candid_opt_n15(this._uploadFile, this._downloadFile, result);
             } catch (e) {
                 this.processError(e);
                 throw new Error("unreachable");
             }
         } else {
             const result = await this.actor.getUserProfile(arg0);
-            return from_candid_opt_n10(this._uploadFile, this._downloadFile, result);
+            return from_candid_opt_n15(this._uploadFile, this._downloadFile, result);
         }
     }
     async isCallerAdmin(): Promise<boolean> {
@@ -396,6 +587,34 @@ export class Backend implements backendInterface {
             return result;
         }
     }
+    async isEffectActive(arg0: string): Promise<boolean> {
+        if (this.processError) {
+            try {
+                const result = await this.actor.isEffectActive(arg0);
+                return result;
+            } catch (e) {
+                this.processError(e);
+                throw new Error("unreachable");
+            }
+        } else {
+            const result = await this.actor.isEffectActive(arg0);
+            return result;
+        }
+    }
+    async revokeAdminAccess(): Promise<void> {
+        if (this.processError) {
+            try {
+                const result = await this.actor.revokeAdminAccess();
+                return result;
+            } catch (e) {
+                this.processError(e);
+                throw new Error("unreachable");
+            }
+        } else {
+            const result = await this.actor.revokeAdminAccess();
+            return result;
+        }
+    }
     async saveCallerUserProfile(arg0: UserProfile): Promise<void> {
         if (this.processError) {
             try {
@@ -407,6 +626,34 @@ export class Backend implements backendInterface {
             }
         } else {
             const result = await this.actor.saveCallerUserProfile(arg0);
+            return result;
+        }
+    }
+    async triggerSiteWideEffect(arg0: string, arg1: string, arg2: string): Promise<bigint> {
+        if (this.processError) {
+            try {
+                const result = await this.actor.triggerSiteWideEffect(arg0, arg1, arg2);
+                return result;
+            } catch (e) {
+                this.processError(e);
+                throw new Error("unreachable");
+            }
+        } else {
+            const result = await this.actor.triggerSiteWideEffect(arg0, arg1, arg2);
+            return result;
+        }
+    }
+    async unlockAdminAccess(arg0: string): Promise<boolean> {
+        if (this.processError) {
+            try {
+                const result = await this.actor.unlockAdminAccess(arg0);
+                return result;
+            } catch (e) {
+                this.processError(e);
+                throw new Error("unreachable");
+            }
+        } else {
+            const result = await this.actor.unlockAdminAccess(arg0);
             return result;
         }
     }
@@ -427,14 +674,14 @@ export class Backend implements backendInterface {
     async updateEmbedConfig(arg0: EmbedConfig): Promise<void> {
         if (this.processError) {
             try {
-                const result = await this.actor.updateEmbedConfig(to_candid_EmbedConfig_n23(this._uploadFile, this._downloadFile, arg0));
+                const result = await this.actor.updateEmbedConfig(to_candid_EmbedConfig_n30(this._uploadFile, this._downloadFile, arg0));
                 return result;
             } catch (e) {
                 this.processError(e);
                 throw new Error("unreachable");
             }
         } else {
-            const result = await this.actor.updateEmbedConfig(to_candid_EmbedConfig_n23(this._uploadFile, this._downloadFile, arg0));
+            const result = await this.actor.updateEmbedConfig(to_candid_EmbedConfig_n30(this._uploadFile, this._downloadFile, arg0));
             return result;
         }
     }
@@ -453,82 +700,40 @@ export class Backend implements backendInterface {
         }
     }
 }
-function from_candid_Announcement_n7(_uploadFile: (file: ExternalBlob) => Promise<Uint8Array>, _downloadFile: (file: Uint8Array) => Promise<ExternalBlob>, value: _Announcement): Announcement {
-    return from_candid_record_n8(_uploadFile, _downloadFile, value);
+function from_candid_Announcement_n13(_uploadFile: (file: ExternalBlob) => Promise<Uint8Array>, _downloadFile: (file: Uint8Array) => Promise<ExternalBlob>, value: _Announcement): Announcement {
+    return from_candid_record_n14(_uploadFile, _downloadFile, value);
 }
-function from_candid_Centre_n14(_uploadFile: (file: ExternalBlob) => Promise<Uint8Array>, _downloadFile: (file: Uint8Array) => Promise<ExternalBlob>, value: _Centre): Centre {
-    return from_candid_record_n15(_uploadFile, _downloadFile, value);
-}
-function from_candid_EmbedConfig_n16(_uploadFile: (file: ExternalBlob) => Promise<Uint8Array>, _downloadFile: (file: Uint8Array) => Promise<ExternalBlob>, value: _EmbedConfig): EmbedConfig {
-    return from_candid_record_n17(_uploadFile, _downloadFile, value);
-}
-function from_candid_MockTestContent_n21(_uploadFile: (file: ExternalBlob) => Promise<Uint8Array>, _downloadFile: (file: Uint8Array) => Promise<ExternalBlob>, value: _MockTestContent): MockTestContent {
-    return from_candid_variant_n22(_uploadFile, _downloadFile, value);
-}
-function from_candid_MockTest_n19(_uploadFile: (file: ExternalBlob) => Promise<Uint8Array>, _downloadFile: (file: Uint8Array) => Promise<ExternalBlob>, value: _MockTest): MockTest {
+function from_candid_Centre_n19(_uploadFile: (file: ExternalBlob) => Promise<Uint8Array>, _downloadFile: (file: Uint8Array) => Promise<ExternalBlob>, value: _Centre): Centre {
     return from_candid_record_n20(_uploadFile, _downloadFile, value);
 }
-function from_candid_UserRole_n11(_uploadFile: (file: ExternalBlob) => Promise<Uint8Array>, _downloadFile: (file: Uint8Array) => Promise<ExternalBlob>, value: _UserRole): UserRole {
-    return from_candid_variant_n12(_uploadFile, _downloadFile, value);
+function from_candid_EmbedConfig_n21(_uploadFile: (file: ExternalBlob) => Promise<Uint8Array>, _downloadFile: (file: Uint8Array) => Promise<ExternalBlob>, value: _EmbedConfig): EmbedConfig {
+    return from_candid_record_n22(_uploadFile, _downloadFile, value);
 }
-function from_candid_opt_n10(_uploadFile: (file: ExternalBlob) => Promise<Uint8Array>, _downloadFile: (file: Uint8Array) => Promise<ExternalBlob>, value: [] | [_UserProfile]): UserProfile | null {
+function from_candid_MockTestContent_n26(_uploadFile: (file: ExternalBlob) => Promise<Uint8Array>, _downloadFile: (file: Uint8Array) => Promise<ExternalBlob>, value: _MockTestContent): MockTestContent {
+    return from_candid_variant_n27(_uploadFile, _downloadFile, value);
+}
+function from_candid_MockTest_n24(_uploadFile: (file: ExternalBlob) => Promise<Uint8Array>, _downloadFile: (file: Uint8Array) => Promise<ExternalBlob>, value: _MockTest): MockTest {
+    return from_candid_record_n25(_uploadFile, _downloadFile, value);
+}
+function from_candid_PopupAnnouncement_n8(_uploadFile: (file: ExternalBlob) => Promise<Uint8Array>, _downloadFile: (file: Uint8Array) => Promise<ExternalBlob>, value: _PopupAnnouncement): PopupAnnouncement {
+    return from_candid_record_n9(_uploadFile, _downloadFile, value);
+}
+function from_candid_UserRole_n16(_uploadFile: (file: ExternalBlob) => Promise<Uint8Array>, _downloadFile: (file: Uint8Array) => Promise<ExternalBlob>, value: _UserRole): UserRole {
+    return from_candid_variant_n17(_uploadFile, _downloadFile, value);
+}
+function from_candid_opt_n10(_uploadFile: (file: ExternalBlob) => Promise<Uint8Array>, _downloadFile: (file: Uint8Array) => Promise<ExternalBlob>, value: [] | [string]): string | null {
     return value.length === 0 ? null : value[0];
 }
-function from_candid_opt_n9(_uploadFile: (file: ExternalBlob) => Promise<Uint8Array>, _downloadFile: (file: Uint8Array) => Promise<ExternalBlob>, value: [] | [string]): string | null {
+function from_candid_opt_n11(_uploadFile: (file: ExternalBlob) => Promise<Uint8Array>, _downloadFile: (file: Uint8Array) => Promise<ExternalBlob>, value: [] | [_SiteWideEffect]): SiteWideEffect | null {
     return value.length === 0 ? null : value[0];
 }
-function from_candid_record_n15(_uploadFile: (file: ExternalBlob) => Promise<Uint8Array>, _downloadFile: (file: Uint8Array) => Promise<ExternalBlob>, value: {
-    id: string;
-    phoneNumbers: Array<string>;
-    name: string;
-    address: [] | [string];
-}): {
-    id: string;
-    phoneNumbers: Array<string>;
-    name: string;
-    address?: string;
-} {
-    return {
-        id: value.id,
-        phoneNumbers: value.phoneNumbers,
-        name: value.name,
-        address: record_opt_to_undefined(from_candid_opt_n9(_uploadFile, _downloadFile, value.address))
-    };
+function from_candid_opt_n15(_uploadFile: (file: ExternalBlob) => Promise<Uint8Array>, _downloadFile: (file: Uint8Array) => Promise<ExternalBlob>, value: [] | [_UserProfile]): UserProfile | null {
+    return value.length === 0 ? null : value[0];
 }
-function from_candid_record_n17(_uploadFile: (file: ExternalBlob) => Promise<Uint8Array>, _downloadFile: (file: Uint8Array) => Promise<ExternalBlob>, value: {
-    announcementVideoEmbedUrl: [] | [string];
-    youtubeIntroUrl: string;
-    youtubeFacebookPageUrl: string;
-}): {
-    announcementVideoEmbedUrl?: string;
-    youtubeIntroUrl: string;
-    youtubeFacebookPageUrl: string;
-} {
-    return {
-        announcementVideoEmbedUrl: record_opt_to_undefined(from_candid_opt_n9(_uploadFile, _downloadFile, value.announcementVideoEmbedUrl)),
-        youtubeIntroUrl: value.youtubeIntroUrl,
-        youtubeFacebookPageUrl: value.youtubeFacebookPageUrl
-    };
+function from_candid_opt_n28(_uploadFile: (file: ExternalBlob) => Promise<Uint8Array>, _downloadFile: (file: Uint8Array) => Promise<ExternalBlob>, value: [] | [_PopupAnnouncement]): PopupAnnouncement | null {
+    return value.length === 0 ? null : from_candid_PopupAnnouncement_n8(_uploadFile, _downloadFile, value[0]);
 }
-function from_candid_record_n20(_uploadFile: (file: ExternalBlob) => Promise<Uint8Array>, _downloadFile: (file: Uint8Array) => Promise<ExternalBlob>, value: {
-    id: bigint;
-    title: string;
-    content: _MockTestContent;
-    createdAt: _Time;
-}): {
-    id: bigint;
-    title: string;
-    content: MockTestContent;
-    createdAt: Time;
-} {
-    return {
-        id: value.id,
-        title: value.title,
-        content: from_candid_MockTestContent_n21(_uploadFile, _downloadFile, value.content),
-        createdAt: value.createdAt
-    };
-}
-function from_candid_record_n8(_uploadFile: (file: ExternalBlob) => Promise<Uint8Array>, _downloadFile: (file: Uint8Array) => Promise<ExternalBlob>, value: {
+function from_candid_record_n14(_uploadFile: (file: ExternalBlob) => Promise<Uint8Array>, _downloadFile: (file: Uint8Array) => Promise<ExternalBlob>, value: {
     id: bigint;
     createdAt: _Time;
     text: string;
@@ -545,11 +750,98 @@ function from_candid_record_n8(_uploadFile: (file: ExternalBlob) => Promise<Uint
         id: value.id,
         createdAt: value.createdAt,
         text: value.text,
-        audioUrl: record_opt_to_undefined(from_candid_opt_n9(_uploadFile, _downloadFile, value.audioUrl)),
-        videoUrl: record_opt_to_undefined(from_candid_opt_n9(_uploadFile, _downloadFile, value.videoUrl))
+        audioUrl: record_opt_to_undefined(from_candid_opt_n10(_uploadFile, _downloadFile, value.audioUrl)),
+        videoUrl: record_opt_to_undefined(from_candid_opt_n10(_uploadFile, _downloadFile, value.videoUrl))
     };
 }
-function from_candid_variant_n12(_uploadFile: (file: ExternalBlob) => Promise<Uint8Array>, _downloadFile: (file: Uint8Array) => Promise<ExternalBlob>, value: {
+function from_candid_record_n20(_uploadFile: (file: ExternalBlob) => Promise<Uint8Array>, _downloadFile: (file: Uint8Array) => Promise<ExternalBlob>, value: {
+    id: string;
+    phoneNumbers: Array<string>;
+    name: string;
+    address: [] | [string];
+}): {
+    id: string;
+    phoneNumbers: Array<string>;
+    name: string;
+    address?: string;
+} {
+    return {
+        id: value.id,
+        phoneNumbers: value.phoneNumbers,
+        name: value.name,
+        address: record_opt_to_undefined(from_candid_opt_n10(_uploadFile, _downloadFile, value.address))
+    };
+}
+function from_candid_record_n22(_uploadFile: (file: ExternalBlob) => Promise<Uint8Array>, _downloadFile: (file: Uint8Array) => Promise<ExternalBlob>, value: {
+    announcementVideoEmbedUrl: [] | [string];
+    youtubeIntroUrl: string;
+    youtubeFacebookPageUrl: string;
+}): {
+    announcementVideoEmbedUrl?: string;
+    youtubeIntroUrl: string;
+    youtubeFacebookPageUrl: string;
+} {
+    return {
+        announcementVideoEmbedUrl: record_opt_to_undefined(from_candid_opt_n10(_uploadFile, _downloadFile, value.announcementVideoEmbedUrl)),
+        youtubeIntroUrl: value.youtubeIntroUrl,
+        youtubeFacebookPageUrl: value.youtubeFacebookPageUrl
+    };
+}
+function from_candid_record_n25(_uploadFile: (file: ExternalBlob) => Promise<Uint8Array>, _downloadFile: (file: Uint8Array) => Promise<ExternalBlob>, value: {
+    id: bigint;
+    title: string;
+    content: _MockTestContent;
+    createdAt: _Time;
+}): {
+    id: bigint;
+    title: string;
+    content: MockTestContent;
+    createdAt: Time;
+} {
+    return {
+        id: value.id,
+        title: value.title,
+        content: from_candid_MockTestContent_n26(_uploadFile, _downloadFile, value.content),
+        createdAt: value.createdAt
+    };
+}
+function from_candid_record_n29(_uploadFile: (file: ExternalBlob) => Promise<Uint8Array>, _downloadFile: (file: Uint8Array) => Promise<ExternalBlob>, value: {
+    hasNextPage: boolean;
+    popups: Array<_PopupAnnouncement>;
+}): {
+    hasNextPage: boolean;
+    popups: Array<PopupAnnouncement>;
+} {
+    return {
+        hasNextPage: value.hasNextPage,
+        popups: from_candid_vec_n7(_uploadFile, _downloadFile, value.popups)
+    };
+}
+function from_candid_record_n9(_uploadFile: (file: ExternalBlob) => Promise<Uint8Array>, _downloadFile: (file: Uint8Array) => Promise<ExternalBlob>, value: {
+    id: bigint;
+    createdAt: _Time;
+    audioUrl: [] | [string];
+    isActive: boolean;
+    message: string;
+    videoUrl: [] | [string];
+}): {
+    id: bigint;
+    createdAt: Time;
+    audioUrl?: string;
+    isActive: boolean;
+    message: string;
+    videoUrl?: string;
+} {
+    return {
+        id: value.id,
+        createdAt: value.createdAt,
+        audioUrl: record_opt_to_undefined(from_candid_opt_n10(_uploadFile, _downloadFile, value.audioUrl)),
+        isActive: value.isActive,
+        message: value.message,
+        videoUrl: record_opt_to_undefined(from_candid_opt_n10(_uploadFile, _downloadFile, value.videoUrl))
+    };
+}
+function from_candid_variant_n17(_uploadFile: (file: ExternalBlob) => Promise<Uint8Array>, _downloadFile: (file: Uint8Array) => Promise<ExternalBlob>, value: {
     admin: null;
 } | {
     user: null;
@@ -558,7 +850,7 @@ function from_candid_variant_n12(_uploadFile: (file: ExternalBlob) => Promise<Ui
 }): UserRole {
     return "admin" in value ? UserRole.admin : "user" in value ? UserRole.user : "guest" in value ? UserRole.guest : value;
 }
-function from_candid_variant_n22(_uploadFile: (file: ExternalBlob) => Promise<Uint8Array>, _downloadFile: (file: Uint8Array) => Promise<ExternalBlob>, value: {
+function from_candid_variant_n27(_uploadFile: (file: ExternalBlob) => Promise<Uint8Array>, _downloadFile: (file: Uint8Array) => Promise<ExternalBlob>, value: {
     pdf: string;
 } | {
     video: string;
@@ -585,17 +877,20 @@ function from_candid_variant_n22(_uploadFile: (file: ExternalBlob) => Promise<Ui
         text: value.text
     } : value;
 }
-function from_candid_vec_n13(_uploadFile: (file: ExternalBlob) => Promise<Uint8Array>, _downloadFile: (file: Uint8Array) => Promise<ExternalBlob>, value: Array<_Centre>): Array<Centre> {
-    return value.map((x)=>from_candid_Centre_n14(_uploadFile, _downloadFile, x));
+function from_candid_vec_n12(_uploadFile: (file: ExternalBlob) => Promise<Uint8Array>, _downloadFile: (file: Uint8Array) => Promise<ExternalBlob>, value: Array<_Announcement>): Array<Announcement> {
+    return value.map((x)=>from_candid_Announcement_n13(_uploadFile, _downloadFile, x));
 }
-function from_candid_vec_n18(_uploadFile: (file: ExternalBlob) => Promise<Uint8Array>, _downloadFile: (file: Uint8Array) => Promise<ExternalBlob>, value: Array<_MockTest>): Array<MockTest> {
-    return value.map((x)=>from_candid_MockTest_n19(_uploadFile, _downloadFile, x));
+function from_candid_vec_n18(_uploadFile: (file: ExternalBlob) => Promise<Uint8Array>, _downloadFile: (file: Uint8Array) => Promise<ExternalBlob>, value: Array<_Centre>): Array<Centre> {
+    return value.map((x)=>from_candid_Centre_n19(_uploadFile, _downloadFile, x));
 }
-function from_candid_vec_n6(_uploadFile: (file: ExternalBlob) => Promise<Uint8Array>, _downloadFile: (file: Uint8Array) => Promise<ExternalBlob>, value: Array<_Announcement>): Array<Announcement> {
-    return value.map((x)=>from_candid_Announcement_n7(_uploadFile, _downloadFile, x));
+function from_candid_vec_n23(_uploadFile: (file: ExternalBlob) => Promise<Uint8Array>, _downloadFile: (file: Uint8Array) => Promise<ExternalBlob>, value: Array<_MockTest>): Array<MockTest> {
+    return value.map((x)=>from_candid_MockTest_n24(_uploadFile, _downloadFile, x));
 }
-function to_candid_EmbedConfig_n23(_uploadFile: (file: ExternalBlob) => Promise<Uint8Array>, _downloadFile: (file: Uint8Array) => Promise<ExternalBlob>, value: EmbedConfig): _EmbedConfig {
-    return to_candid_record_n24(_uploadFile, _downloadFile, value);
+function from_candid_vec_n7(_uploadFile: (file: ExternalBlob) => Promise<Uint8Array>, _downloadFile: (file: Uint8Array) => Promise<ExternalBlob>, value: Array<_PopupAnnouncement>): Array<PopupAnnouncement> {
+    return value.map((x)=>from_candid_PopupAnnouncement_n8(_uploadFile, _downloadFile, x));
+}
+function to_candid_EmbedConfig_n30(_uploadFile: (file: ExternalBlob) => Promise<Uint8Array>, _downloadFile: (file: Uint8Array) => Promise<ExternalBlob>, value: EmbedConfig): _EmbedConfig {
+    return to_candid_record_n31(_uploadFile, _downloadFile, value);
 }
 function to_candid_MockTestContent_n4(_uploadFile: (file: ExternalBlob) => Promise<Uint8Array>, _downloadFile: (file: Uint8Array) => Promise<ExternalBlob>, value: MockTestContent): _MockTestContent {
     return to_candid_variant_n5(_uploadFile, _downloadFile, value);
@@ -606,7 +901,10 @@ function to_candid_UserRole_n2(_uploadFile: (file: ExternalBlob) => Promise<Uint
 function to_candid_opt_n1(_uploadFile: (file: ExternalBlob) => Promise<Uint8Array>, _downloadFile: (file: Uint8Array) => Promise<ExternalBlob>, value: string | null): [] | [string] {
     return value === null ? candid_none() : candid_some(value);
 }
-function to_candid_record_n24(_uploadFile: (file: ExternalBlob) => Promise<Uint8Array>, _downloadFile: (file: Uint8Array) => Promise<ExternalBlob>, value: {
+function to_candid_opt_n6(_uploadFile: (file: ExternalBlob) => Promise<Uint8Array>, _downloadFile: (file: Uint8Array) => Promise<ExternalBlob>, value: bigint | null): [] | [bigint] {
+    return value === null ? candid_none() : candid_some(value);
+}
+function to_candid_record_n31(_uploadFile: (file: ExternalBlob) => Promise<Uint8Array>, _downloadFile: (file: Uint8Array) => Promise<ExternalBlob>, value: {
     announcementVideoEmbedUrl?: string;
     youtubeIntroUrl: string;
     youtubeFacebookPageUrl: string;

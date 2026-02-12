@@ -1,56 +1,106 @@
 {
   "kind": "coverage_report",
   "version": "1.0",
-  "generatedAt": "2026-02-12T06:23:41.838Z",
+  "generatedAt": "2026-02-12T14:26:35.306Z",
   "sources": {
     "buildRequest": true,
     "implementationPlan": true
   },
   "requirements": {
-    "total": 2,
-    "implemented": 2,
+    "total": 4,
+    "implemented": 3,
     "items": [
       {
-        "id": "REQ-46",
-        "summary": "Investigate the current deployment failure and apply the necessary code/configuration fixes so the project deploys successfully to the Internet Computer.",
+        "id": "REQ-51",
+        "summary": "Add an “Effects & Popups” section to the Admin Panel (/admin) that is visible only to verified admins and provides UI controls to trigger site-wide visual effects and site-wide popup announcements.",
         "status": "implemented",
         "plannedFiles": [
-          "frontend/src/App.tsx",
-          "frontend/src/main.tsx",
-          "frontend/index.html"
+          "frontend/src/pages/AdminPanelPage.tsx",
+          "frontend/src/components/effects/siteWideEffectPresets.ts",
+          "frontend/src/components/effects/AdminEffectPresetPreview.tsx"
         ],
         "matchedFiles": [
-          "frontend/src/App.tsx"
+          "frontend/src/pages/AdminPanelPage.tsx",
+          "frontend/src/components/effects/siteWideEffectPresets.ts",
+          "frontend/src/components/effects/AdminEffectPresetPreview.tsx"
         ]
       },
       {
-        "id": "REQ-47",
-        "summary": "Ensure the deployed frontend correctly connects to the deployed backend canister (actor) so core pages can fetch data without runtime errors.",
+        "id": "REQ-52",
+        "summary": "Implement backend support for admin-triggered site-wide effects and site-wide popup announcements, stored in the single Motoko actor and retrievable by the frontend on page load/navigation (no real-time).",
+        "status": "unknown",
+        "plannedFiles": [],
+        "matchedFiles": []
+      },
+      {
+        "id": "REQ-53",
+        "summary": "Add more effect presets beyond the current list, and ensure each preset has a corresponding frontend visual implementation that can be activated from the backend-triggered state without breaking normal site navigation.",
         "status": "implemented",
         "plannedFiles": [
-          "frontend/src/config.ts",
-          "frontend/src/hooks/useActor.ts",
-          "frontend/src/pages/CentresPage.tsx",
-          "frontend/src/pages/AnnouncementsPage.tsx",
-          "frontend/src/pages/MockTestsPage.tsx"
+          "frontend/src/components/effects/SiteWideEffectsLayer.tsx",
+          "frontend/src/components/effects/useSiteWideEffectState.ts",
+          "frontend/src/components/effects/presets/ConfettiBurstEffect.tsx",
+          "frontend/src/components/effects/presets/FallingParticlesEffect.tsx",
+          "frontend/src/components/effects/presets/GlowSweepEffect.tsx",
+          "frontend/src/components/effects/presets/ScreenPulseEffect.tsx",
+          "frontend/src/components/effects/presets/SpotlightRaysEffect.tsx",
+          "frontend/src/components/layout/SiteLayout.tsx",
+          "frontend/tailwind.config.js"
         ],
         "matchedFiles": [
-          "frontend/src/pages/CentresPage.tsx",
-          "frontend/src/pages/AnnouncementsPage.tsx",
-          "frontend/src/pages/MockTestsPage.tsx"
+          "frontend/src/components/effects/SiteWideEffectsLayer.tsx",
+          "frontend/src/components/effects/useSiteWideEffectState.ts",
+          "frontend/src/components/effects/presets/ConfettiBurstEffect.tsx",
+          "frontend/src/components/effects/presets/FallingParticlesEffect.tsx",
+          "frontend/src/components/effects/presets/GlowSweepEffect.tsx",
+          "frontend/src/components/effects/presets/ScreenPulseEffect.tsx",
+          "frontend/src/components/effects/presets/SpotlightRaysEffect.tsx",
+          "frontend/src/components/layout/SiteLayout.tsx",
+          "frontend/tailwind.config.js"
+        ]
+      },
+      {
+        "id": "REQ-54",
+        "summary": "Improve the Admin Panel page visual experience (“more effects”) by adding polished motion/hover micro-interactions and a distinct admin-only styling treatment that still matches the site’s education/coaching theme.",
+        "status": "implemented",
+        "plannedFiles": [
+          "frontend/src/pages/AdminPanelPage.tsx",
+          "frontend/src/index.css"
+        ],
+        "matchedFiles": [
+          "frontend/src/pages/AdminPanelPage.tsx",
+          "frontend/src/index.css"
         ]
       }
     ]
   },
   "changedFiles": [
+    "backend/main.mo",
+    "backend/migration.mo",
     "build-request.json",
     "feature_evidence.json",
     "frontend-file-summaries.txt",
     "frontend-implementation-plan.json",
-    "frontend/src/App.tsx",
-    "frontend/src/pages/AnnouncementsPage.tsx",
-    "frontend/src/pages/CentresPage.tsx",
-    "frontend/src/pages/MockTestsPage.tsx",
+    "frontend/src/backend.d.ts",
+    "frontend/src/backend.ts",
+    "frontend/src/components/effects/AdminEffectPresetPreview.tsx",
+    "frontend/src/components/effects/SiteWideEffectsLayer.tsx",
+    "frontend/src/components/effects/presets/AuroraGlowEffect.tsx",
+    "frontend/src/components/effects/presets/ConfettiBurstEffect.tsx",
+    "frontend/src/components/effects/presets/FallingParticlesEffect.tsx",
+    "frontend/src/components/effects/presets/GlowSweepEffect.tsx",
+    "frontend/src/components/effects/presets/ScreenPulseEffect.tsx",
+    "frontend/src/components/effects/presets/ShimmerWaveEffect.tsx",
+    "frontend/src/components/effects/presets/SparkleTrailEffect.tsx",
+    "frontend/src/components/effects/presets/SpotlightRaysEffect.tsx",
+    "frontend/src/components/effects/siteWideEffectPresets.ts",
+    "frontend/src/components/effects/useSiteWideEffectState.ts",
+    "frontend/src/components/layout/SiteLayout.tsx",
+    "frontend/src/declarations/backend.did.d.ts",
+    "frontend/src/declarations/backend.did.js",
+    "frontend/src/index.css",
+    "frontend/src/pages/AdminPanelPage.tsx",
+    "frontend/tailwind.config.js",
     "project_state.json",
     "scratch/component-selection.json",
     "spec.md",
