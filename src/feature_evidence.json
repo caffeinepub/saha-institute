@@ -1,0 +1,45 @@
+{
+  "kind": "feature_evidence_report",
+  "features": [
+    {
+      "featureId": "feature-investigate-the-current-deployment-failure-and-apply-the-necessary-code-configuration-fixes-so-the-project-deploys-successfully-to-the-internet-computer",
+      "featureTitle": "Investigate the current deployment failure and apply the necessary code/configuration fixes so the project deploys successfully to the Internet Computer.",
+      "files": [
+        "frontend/src/App.tsx"
+      ],
+      "components": [
+        "authorization@4.0.0",
+        "core-infrastructure@1.0.2",
+        "shadcn-ui@1.0.0",
+        "build-template-react@1.0.0",
+        "initial-app@1.0.0",
+        "github-export-icp-cli@1.0.0"
+      ],
+      "testIds": [
+        "REQ-46"
+      ],
+      "confidence": "high"
+    },
+    {
+      "featureId": "feature-ensure-the-deployed-frontend-correctly-connects-to-the-deployed-backend-canister-actor-so-core-pages-can-fetch-data-without-runtime-errors",
+      "featureTitle": "Ensure the deployed frontend correctly connects to the deployed backend canister (actor) so core pages can fetch data without runtime errors.",
+      "files": [
+        "frontend/src/pages/AnnouncementsPage.tsx",
+        "frontend/src/pages/CentresPage.tsx",
+        "frontend/src/pages/MockTestsPage.tsx"
+      ],
+      "components": [
+        "authorization@4.0.0",
+        "core-infrastructure@1.0.2",
+        "shadcn-ui@1.0.0",
+        "build-template-react@1.0.0",
+        "initial-app@1.0.0",
+        "github-export-icp-cli@1.0.0"
+      ],
+      "testIds": [
+        "REQ-47"
+      ],
+      "confidence": "high"
+    }
+  ]
+}

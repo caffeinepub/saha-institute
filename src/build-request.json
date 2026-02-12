@@ -1,0 +1,66 @@
+{
+  "kind": "build_request",
+  "title": "Fix deployment and successfully deploy the Saha Institute app",
+  "priority": "high",
+  "requirements": [
+    {
+      "id": "REQ-46",
+      "text": "Investigate the current deployment failure and apply the necessary code/configuration fixes so the project deploys successfully to the Internet Computer.",
+      "target": "both",
+      "source": {
+        "messageIds": [
+          "msg-2"
+        ],
+        "quotes": [
+          "DEPLOY"
+        ]
+      },
+      "acceptanceCriteria": [
+        "A fresh build of the project completes without errors for both backend (Motoko) and frontend.",
+        "Running the platform’s deployment step (equivalent to `dfx deploy` for the configured canisters) completes successfully without manual intervention.",
+        "After deployment, the frontend loads successfully and the SPA routes render (at minimum: /, /courses, /centres, /reviews, /announcements, /mock-tests, /login, /admin) without returning an unexpected Not Found error."
+      ]
+    },
+    {
+      "id": "REQ-47",
+      "text": "Ensure the deployed frontend correctly connects to the deployed backend canister (actor) so core pages can fetch data without runtime errors.",
+      "target": "both",
+      "source": {
+        "messageIds": [
+          "msg-2"
+        ],
+        "quotes": [
+          "DEPLOY"
+        ]
+      },
+      "acceptanceCriteria": [
+        "Opening the deployed app in a browser shows no blocking console errors related to agent/actor initialization or canister ID resolution.",
+        "Public data-fetching pages that call the actor (e.g., Centres, Announcements, Mock Tests) successfully load and render their empty/loading states or content instead of failing due to backend connectivity issues."
+      ]
+    }
+  ],
+  "constraints": [
+    "Backend must remain a single Motoko actor in backend/main.mo (no additional backend services).",
+    "Do not edit files under frontend/src/components/ui or any paths listed as immutable in SYSTEM_CONTEXT."
+  ],
+  "nonGoals": [
+    "Adding new product features unrelated to deployment.",
+    "Changing the visual design/theme beyond what is required to unblock deployment."
+  ],
+  "imageRequirements": {
+    "required": [],
+    "edits": []
+  },
+  "userProfileUpdate": {
+    "goalsToAdd": [],
+    "goalsToRemove": [],
+    "preferencesToAdd": [
+      "Use English for any user-facing text."
+    ],
+    "preferencesToRemove": [],
+    "miscToAdd": [],
+    "miscToRemove": [],
+    "fieldsToSet": {},
+    "fieldsToDelete": []
+  }
+}

@@ -1,0 +1,68 @@
+{
+  "kind": "implementation_plan",
+  "version": "1.0",
+  "title": "Unblock ICP deployment and stabilize frontend actor connectivity",
+  "requirements": [
+    {
+      "id": "REQ-46",
+      "summary": "Remove frontend build/deploy blockers and ensure SPA routes render after deployment on the Internet Computer.",
+      "acceptanceCriteria": [
+        "A fresh build of the project completes without errors for both backend (Motoko) and frontend.",
+        "Running the platform’s deployment step (equivalent to `dfx deploy` for the configured canisters) completes successfully without manual intervention.",
+        "After deployment, the frontend loads successfully and the SPA routes render (at minimum: /, /courses, /centres, /reviews, /announcements, /mock-tests, /login, /admin) without returning an unexpected Not Found error."
+      ],
+      "file_operations": [
+        {
+          "path": "frontend/src/App.tsx",
+          "operation": "modify",
+          "description": "Adjust router/runtime setup for ICP-friendly SPA navigation (e.g., prefer hash-based routing if needed to avoid asset-canister 404s on deep links) and remove duplicate React Query provider creation (keep a single QueryClientProvider in one place) to prevent runtime/provider conflicts."
+        },
+        {
+          "path": "frontend/src/main.tsx",
+          "operation": "modify",
+          "description": "Align app providers with the updated App.tsx (single React Query provider + Internet Identity provider) to ensure a clean, deterministic bootstrap that builds and runs consistently in the deployed environment."
+        },
+        {
+          "path": "frontend/index.html",
+          "operation": "modify",
+          "description": "Verify the HTML entry is compatible with the chosen routing strategy and ICP asset hosting (ensure asset/script references remain resolvable after deployment and do not cause route-related Not Found behavior)."
+        }
+      ]
+    },
+    {
+      "id": "REQ-47",
+      "summary": "Ensure the deployed frontend reliably initializes the backend actor and avoids runtime agent/canister-resolution failures on data-fetching pages.",
+      "acceptanceCriteria": [
+        "Opening the deployed app in a browser shows no blocking console errors related to agent/actor initialization or canister ID resolution.",
+        "Public data-fetching pages that call the actor (e.g., Centres, Announcements, Mock Tests) successfully load and render their empty/loading states or content instead of failing due to backend connectivity issues."
+      ],
+      "file_operations": [
+        {
+          "path": "frontend/src/config.ts",
+          "operation": "create",
+          "description": "Implement a deployment-safe actor factory (use the selected core-infrastructure component’s backend connection configuration patterns to resolve the deployed canister ID and create an HttpAgent/actor in both local and IC environments; include defensive validation so missing/invalid canister IDs fail gracefully rather than crashing). Verify the component's usage instructions before implementing."
+        },
+        {
+          "path": "frontend/src/hooks/useActor.ts",
+          "operation": "modify",
+          "description": "Refactor actor initialization to use the centralized config actor factory; add robust guards for canister ID resolution and optional admin initialization calls (avoid calling access-control initialization if the actor method is unavailable or if required config is missing), and ensure query invalidation remains correct when identity changes. Use the authorization component expectations for login/identity state handling (clear cached data on logout already present; ensure actor creation does not throw on guest access). Verify the component's usage instructions before implementing."
+        },
+        {
+          "path": "frontend/src/pages/CentresPage.tsx",
+          "operation": "modify",
+          "description": "Harden data-fetching against transient actor initialization states (ensure the page reliably shows loading/empty states when actor is unavailable and does not surface runtime errors due to actor creation failures)."
+        },
+        {
+          "path": "frontend/src/pages/AnnouncementsPage.tsx",
+          "operation": "modify",
+          "description": "Harden data-fetching against transient actor initialization states (ensure the page reliably shows loading/empty states when actor is unavailable and does not surface runtime errors due to actor creation failures)."
+        },
+        {
+          "path": "frontend/src/pages/MockTestsPage.tsx",
+          "operation": "modify",
+          "description": "Harden data-fetching against transient actor initialization states (ensure the page reliably shows loading/empty states when actor is unavailable and does not surface runtime errors due to actor creation failures)."
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,53 @@
+{
+  "kind": "spec_vs_diff_report",
+  "version": "1.0",
+  "generatedAt": "2026-02-12T06:23:41.835Z",
+  "summary": "Diff focuses on frontend routing and data-fetching pages (Centres/Announcements/Mock Tests) using TanStack Router + React Query and a useActor hook, plus adds hidden/easter-egg routes. There is not enough evidence in the diff summary of deployment/config fixes (dfx/canister config/build pipeline) or of a verified frontend-to-backend canister ID/agent initialization fix required to guarantee successful IC deployment.",
+  "missing_requirements": [
+    {
+      "id": "REQ-46",
+      "requirement": "Investigate the current deployment failure and apply the necessary code/configuration fixes so the project deploys successfully to the Internet Computer (fresh build succeeds; `dfx deploy` succeeds; SPA routes render without unexpected Not Found).",
+      "reason": "The diff summary only shows frontend route definitions and page-level loading/query behavior. It provides no evidence of deployment-related configuration changes (e.g., dfx.json, canister build setup, asset canister settings, SPA fallback for IC asset canister) or backend build/deploy fixes needed to ensure `dfx deploy` completes successfully.",
+      "evidence": [
+        "frontend/src/App.tsx",
+        "frontend-file-summaries.txt"
+      ]
+    },
+    {
+      "id": "REQ-47",
+      "requirement": "Ensure the deployed frontend correctly connects to the deployed backend canister (actor) so pages can fetch data without runtime errors (no blocking console errors; canister ID resolution works; Centres/Announcements/Mock Tests load empty/loading states or content).",
+      "reason": "Pages were updated to gate queries on `actor` availability, but the diff summary does not show changes to the actor/agent initialization itself (e.g., canister ID resolution in production, environment variables, generated declarations usage, or useActor implementation). Without those, correct connection to the deployed backend canister cannot be confirmed.",
+      "evidence": [
+        "frontend/src/pages/AnnouncementsPage.tsx",
+        "frontend/src/pages/CentresPage.tsx",
+        "frontend/src/pages/MockTestsPage.tsx"
+      ]
+    }
+  ],
+  "hallucinated_features": [
+    {
+      "description": "Added/kept a hidden \"Secret forest\" route at /forest-of-demons and a separate \"fake 404 kickout\" route at /kicked-out-404.",
+      "reason": "Not requested by REQ-46/REQ-47 (deployment + backend connectivity). These are new product/experience routes unrelated to unblocking deployment.",
+      "evidence": [
+        "frontend/src/App.tsx",
+        "frontend-file-summaries.txt"
+      ]
+    },
+    {
+      "description": "Easter egg click-counter on the Centres empty state (28 clicks) that navigates to the secret forest page.",
+      "reason": "Not part of deployment/connectivity requirements and constitutes a new feature unrelated to deployment fixes.",
+      "evidence": [
+        "frontend/src/pages/CentresPage.tsx"
+      ]
+    }
+  ],
+  "confidence": 0.74,
+  "changed_files": [
+    "frontend-file-summaries.txt",
+    "frontend/src/App.tsx",
+    "frontend/src/pages/AnnouncementsPage.tsx",
+    "frontend/src/pages/CentresPage.tsx",
+    "frontend/src/pages/MockTestsPage.tsx",
+    "project_state.json"
+  ]
+}

@@ -1,0 +1,531 @@
+{
+  "schemaVersion": "1.0.0",
+  "projectStateVersion": 25,
+  "summary": "Build a website for Saha Institute (Navodaya coaching centre) featuring embedded YouTube/Facebook content with latest videos shown dynamically, a reviews page, information about multiple centres across West Bengal, contact details, a site-wide logo, a learning-tips chatbot (tips + fees/courses info), and an authenticated admin area (Internet Identity + access code) to manage mock tests and announcements, plus user/admin profile pages (with admin fire animation), attribution of admin authors on posts, admin-triggered site-wide visual effects + popup messages (delivered on refresh/navigation, not true realtime), and social features for normal accounts (comments, likes, and user-to-user chat).",
+  "architectural_notes": [
+    "Do not use AI-generated photos; use only provided/logo assets or non-AI images.",
+    "YouTube: show newest videos by fetching channel/video list on page load (no scheduled daily background updates).",
+    "Facebook: use direct embeds for page/video; do not rely on Facebook API.",
+    "Auth: use Internet Identity for user login; gate admin panel with additional access code \"12345-QUICKLMOCK\".",
+    "Admin content types supported: mock tests (video/PDF/text) and announcements (text/video/audio).",
+    "Facebook: embed the two provided videos via direct embed URLs (no Facebook API): https://www.facebook.com/share/v/1DFxjp9oRq/ and https://www.facebook.com/share/v/1K3RNjYEXa/.",
+    "Easter egg: 28-click trigger on the Centres 'no data' page opens a hidden secret page (no public route), featuring looping forest animation with falling leaves, looping bird audio, 23 manga volume placeholders + game placeholders, and a 10-click background trigger to reveal Demon Slayer characters (placeholders).",
+    "Secret page entry trigger should work via clicking the \"Built by Caffeine AI\" area (confirm/ensure this is the intended entry interaction).",
+    "Secret Forest manga: do not embed or display copyrighted Viz manga pages; instead provide outbound links to official Viz pages for volumes 1–23.",
+    "Do not embed or redistribute copyrighted Demon Slayer video clips; any 'official clip' used for the Fire Wheel effect must be user-provided with clear rights/permission or replaced with an original non-copyrighted animation."
+  ],
+  "known_issues": [
+    "All pages are returning \"Not Found\"; site/route hosting appears broken (including missing login and admin panel routes).",
+    "Site-wide logo is incorrect (wrong logo asset displayed); needs to be replaced with the provided correct logo (including header and favicon).",
+    "Secret page entry is not working/reliably triggering when clicked (user reports secret page not opening).",
+    "Secret Forest page: bird-chirping audio is not playing/autostarting on page open (with controls).",
+    "Secret Forest page: manga volume interactions are not working as expected; user requested real Viz manga but must be implemented as official Viz outbound links instead.",
+    "Secret Forest page: idle detection / Infinity Castle falling sequence is not triggering/visible.",
+    "Secret Forest page: 10-click background trigger to reveal Demon Slayer character placeholders is not working."
+  ],
+  "isFixRequest": false,
+  "existing_features": [
+    {
+      "id": "feature-create-the-public-saha-institute-website-shell-with-a-responsive-layout-top-navigation-and-footer-and-ensure-the-uploaded-saha-institute-logo-is-displayed-site-wide-header-and-browser-tab-favicon",
+      "title": "Create the public Saha Institute website shell with a responsive layout, top navigation, and footer, and ensure the uploaded Saha Institute logo is displayed site-wide (header and browser tab/favicon).",
+      "reqIds": [
+        "REQ-1"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-apply-a-coherent-visual-theme-for-the-full-site-colors-typography-spacing-components-that-matches-an-education-coaching-institute-brand-and-is-used-consistently-across-all-pages-do-not-use-a-blue-and-purple-default-theme",
+      "title": "Apply a coherent visual theme for the full site (colors, typography, spacing, components) that matches an education/coaching institute brand and is used consistently across all pages. Do not use a blue-and-purple default theme.",
+      "reqIds": [
+        "REQ-2"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-add-a-public-courses-fees-page-section-that-includes-a-course-information-editable-content-and-b-the-fees-policy-message-if-you-have-a-low-amount-of-money-and-you-can-t-read-sir-will-teach-you-for-free",
+      "title": "Add a public “Courses & Fees” page/section that includes: (a) course information (editable content) and (b) the fees policy message: “If you have a low amount of money and you can't read, sir will teach you for free.”",
+      "reqIds": [
+        "REQ-3"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-add-a-public-centres-contact-page-section-describing-that-saha-institute-has-centres-across-west-bengal-and-include-contact-information-fields-that-can-be-updated-by-admins-e-g-one-or-more-phone-numbers-and-optional-address-text-per-centre",
+      "title": "Add a public “Centres & Contact” page/section describing that Saha Institute has centres across West Bengal, and include contact information fields that can be updated by admins (e.g., one or more phone numbers and optional address text per centre).",
+      "reqIds": [
+        "REQ-4"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-add-a-public-reviews-page-that-shows-a-list-of-reviews-testimonials-manual-static-entries-initially-in-a-clean-card-layout",
+      "title": "Add a public “Reviews” page that shows a list of reviews/testimonials (manual/static entries initially) in a clean card layout.",
+      "reqIds": [
+        "REQ-5"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-add-embedded-social-video-content-on-the-public-site-a-youtube-content-and-b-facebook-page-introduction-video-via-embeds-no-facebook-api-usage-provide-admin-configurable-fields-for-the-embed-urls-ids-so-the-institute-can-update-them-without-redeploying",
+      "title": "Add embedded social/video content on the public site: (a) YouTube content and (b) Facebook page + introduction video via embeds (no Facebook API usage). Provide admin-configurable fields for the embed URLs/IDs so the institute can update them without redeploying.",
+      "reqIds": [
+        "REQ-6"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-implement-a-learning-tips-chatbot-ui-on-the-public-site-that-provides-general-learning-tips-and-also-answers-faqs-about-saha-institute-courses-and-fees-based-on-a-fixed-internal-knowledge-base-no-external-ai-service",
+      "title": "Implement a learning-tips chatbot UI on the public site that provides general learning tips and also answers FAQs about Saha Institute courses and fees based on a fixed internal knowledge base (no external AI service).",
+      "reqIds": [
+        "REQ-7"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-add-authentication-using-internet-identity-for-user-login-and-show-logged-in-state-in-the-ui-e-g-login-button-principal-display-logout",
+      "title": "Add authentication using Internet Identity for user login, and show logged-in state in the UI (e.g., login button, principal display, logout).",
+      "reqIds": [
+        "REQ-8"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-create-an-admin-panel-that-is-accessible-only-after-1-the-user-is-logged-in-with-internet-identity-and-2-the-user-enters-the-admin-access-code-exactly-12345-quicklmock-admin-unlock-should-persist-for-the-session-and-be-revocable-by-logout",
+      "title": "Create an admin panel that is accessible only after: (1) the user is logged in with Internet Identity, and (2) the user enters the admin access code exactly: \"12345-QUICKLMOCK\". Admin unlock should persist for the session and be revocable by logout.",
+      "reqIds": [
+        "REQ-9"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-in-the-admin-panel-allow-admins-to-create-edit-and-delete-mock-tests-with-support-for-three-content-types-a-video-url-embed-b-pdf-url-and-c-text-rich-plain-display-mock-tests-on-a-public-page-with-filtering-by-type",
+      "title": "In the admin panel, allow admins to create, edit, and delete “Mock Tests” with support for three content types: (a) video (URL/embed), (b) PDF (URL), and (c) text (rich/plain). Display mock tests on a public page with filtering by type.",
+      "reqIds": [
+        "REQ-10"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-in-the-admin-panel-allow-admins-to-create-edit-and-delete-announcements-that-support-text-plus-optional-video-and-audio-attachments-via-urls-embeds-display-announcements-on-a-public-page-in-reverse-chronological-order",
+      "title": "In the admin panel, allow admins to create, edit, and delete “Announcements” that support: text plus optional video and audio attachments via URLs/embeds. Display announcements on a public page in reverse-chronological order.",
+      "reqIds": [
+        "REQ-11"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-add-generated-static-image-assets-to-the-frontend-under-frontend-public-assets-generated-and-use-them-in-the-ui-logo-variants-favicon-do-not-route-image-delivery-through-the-backend",
+      "title": "Add generated static image assets to the frontend under `frontend/public/assets/generated` and use them in the UI (logo variants + favicon). Do not route image delivery through the backend.",
+      "reqIds": [
+        "REQ-13"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-fix-the-frontend-routing-so-the-site-no-longer-shows-not-found-for-all-pages-and-ensure-all-existing-public-and-admin-urls-are-reachable-via-the-spa-router-including-at-least-courses-centres-reviews-announcements-mock-tests-login-and-the-admin-panel-route",
+      "title": "Fix the frontend routing so the site no longer shows “Not Found” for all pages, and ensure all existing public and admin URLs are reachable via the SPA router (including at least: /, /courses, /centres, /reviews, /announcements, /mock-tests, /login, and the admin panel route).",
+      "reqIds": [
+        "REQ-14"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-update-site-navigation-elements-to-use-tanstack-router-client-side-navigation-instead-of-plain-a-href-full-page-loads-so-route-changes-do-not-rely-on-server-side-rewrites-and-do-not-produce-not-found-responses",
+      "title": "Update site navigation elements to use TanStack Router client-side navigation (instead of plain <a href> full page loads) so route changes do not rely on server-side rewrites and do not produce Not Found responses.",
+      "reqIds": [
+        "REQ-15"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-add-a-user-friendly-not-found-404-page-route-for-unmatched-urls-that-provides-a-link-back-to-home-and-ensure-it-only-appears-for-truly-unknown-routes-not-for-valid-site-pages",
+      "title": "Add a user-friendly “Not Found” (404) page/route for unmatched URLs that provides a link back to Home, and ensure it only appears for truly unknown routes (not for valid site pages).",
+      "reqIds": [
+        "REQ-16"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-replace-the-current-site-wide-logo-with-the-newly-uploaded-logo-image-ensuring-the-updated-logo-is-displayed-anywhere-the-logo-appears-header-desktop-mobile-footer-and-that-the-browser-tab-favicon-also-updates-accordingly",
+      "title": "Replace the current site-wide logo with the newly uploaded logo image, ensuring the updated logo is displayed anywhere the logo appears (header desktop + mobile, footer) and that the browser tab/favicon also updates accordingly.",
+      "reqIds": [
+        "REQ-17"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-add-a-new-public-section-on-the-home-page-that-permanently-embeds-both-provided-facebook-videos-using-iframe-embeds-not-the-facebook-api-and-label-them-clearly-so-visitors-can-distinguish-the-important-video-from-the-saha-institute-introduction-video",
+      "title": "Add a new public section on the Home page that permanently embeds both provided Facebook videos (using iframe embeds, not the Facebook API), and label them clearly so visitors can distinguish the “important” video from the Saha Institute introduction video.",
+      "reqIds": [
+        "REQ-18"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-update-the-site-wide-logo-and-favicon-assets-to-match-the-newly-uploaded-correct-saha-institute-logo-image-screenshot-2026-02-11-19-22-55-38-7352322957d4404136654ef4adb64504-3-jpg-so-the-correct-logo-appears-anywhere-the-logo-is-used-header-desktop-mobile-homepage-hero-footer-and-the-browser-tab-favicon-also-updates-accordingly",
+      "title": "Update the site-wide logo and favicon assets to match the newly uploaded correct Saha Institute logo image (Screenshot_2026-02-11-19-22-55-38_7352322957d4404136654ef4adb64504-3.jpg), so the correct logo appears anywhere the logo is used (header desktop + mobile, homepage hero, footer) and the browser tab favicon also updates accordingly.",
+      "reqIds": [
+        "REQ-19"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-update-the-public-courses-fees-page-to-remove-all-existing-course-listings-details-and-show-only-this-message-no-course-data-contact-us-for-information",
+      "title": "Update the public “Courses & Fees” page to remove all existing course listings/details and show only this message: \"No course data, contact us for information\".",
+      "reqIds": [
+        "REQ-20"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-replace-the-site-wide-logo-artwork-with-the-newly-uploaded-logo-use-either-of-the-uploaded-files-screenshot-2026-02-11-19-22-55-38-7352322957d4404136654ef4adb64504-4-jpg-screenshot-2026-02-11-19-22-55-38-7352322957d4404136654ef4adb64504-5-jpg-while-keeping-the-existing-logo-filename-references-unchanged-so-the-new-logo-appears-anywhere-the-logo-is-used-header-desktop-header-mobile-footer",
+      "title": "Replace the site-wide logo artwork with the newly uploaded logo (use either of the uploaded files: Screenshot_2026-02-11-19-22-55-38_7352322957d4404136654ef4adb64504-4.jpg / Screenshot_2026-02-11-19-22-55-38_7352322957d4404136654ef4adb64504-5.jpg) while keeping the existing logo filename references unchanged so the new logo appears anywhere the logo is used (header desktop, header mobile, footer).",
+      "reqIds": [
+        "REQ-21"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-update-the-browser-tab-favicon-to-match-the-newly-uploaded-logo-keeping-the-existing-favicon-filename-reference-unchanged-frontend-index-html-should-continue-referencing-assets-generated-saha-favicon-v2-dim-64x64-png",
+      "title": "Update the browser tab favicon to match the newly uploaded logo, keeping the existing favicon filename reference unchanged (frontend/index.html should continue referencing /assets/generated/saha-favicon-v2.dim_64x64.png).",
+      "reqIds": [
+        "REQ-22"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-add-a-hidden-easter-egg-trigger-on-the-centres-page-empty-state-the-card-shown-when-there-are-no-centres-so-that-clicking-anywhere-on-that-empty-state-card-28-times-navigates-the-user-to-a-secret-page-the-click-counter-must-only-increment-when-the-empty-state-is-shown-i-e-when-centres-length-0-and-not-loading",
+      "title": "Add a hidden Easter egg trigger on the Centres page empty-state (the card shown when there are no centres) so that clicking anywhere on that empty-state card 28 times navigates the user to a secret page. The click counter must only increment when the empty-state is shown (i.e., when centres.length === 0 and not loading).",
+      "reqIds": [
+        "REQ-23"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-create-a-secret-route-page-not-discoverable-via-navigation-that-renders-a-dynamic-looping-forest-scene-background-with-continuous-falling-leaves-effect-replace-the-previously-requested-black-background-with-this-forest-animation-the-page-must-include-neon-styled-placeholder-sections-for-a-demon-slayer-manga-reading-and-b-demon-slayer-games",
+      "title": "Create a secret route/page (not discoverable via navigation) that renders a dynamic, looping forest scene background with continuous falling leaves effect. Replace the previously requested black background with this forest animation. The page must include neon-styled placeholder sections for (a) Demon Slayer manga reading and (b) Demon Slayer games.",
+      "reqIds": [
+        "REQ-24"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-on-the-secret-forest-page-include-demon-slayer-manga-placeholders-for-all-23-volumes-presented-as-a-clear-list-grid-with-volume-numbers-1-through-23",
+      "title": "On the secret forest page, include Demon Slayer manga placeholders for all 23 volumes, presented as a clear list/grid with volume numbers 1 through 23.",
+      "reqIds": [
+        "REQ-25"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-add-looping-bird-chirping-audio-on-the-secret-forest-page-enabled-when-the-user-enters-the-page-with-user-controls-to-pause-mute",
+      "title": "Add looping bird-chirping audio on the secret forest page, enabled when the user enters the page, with user controls to pause/mute.",
+      "reqIds": [
+        "REQ-26"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-on-the-secret-forest-page-track-clicks-on-the-background-scene-area-after-10-background-clicks-show-placeholders-representing-all-demon-slayer-characters-appearing-on-the-page-e-g-a-grid-of-character-silhouette-cards-or-labeled-character-placeholders",
+      "title": "On the secret forest page, track clicks on the background/scene area; after 10 background clicks, show placeholders representing “all Demon Slayer characters” appearing on the page (e.g., a grid of character silhouette cards or labeled character placeholders).",
+      "reqIds": [
+        "REQ-27"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-implement-idle-detection-on-the-secret-forest-page-forest-of-demons-if-the-user-is-idle-for-2-minutes-automatically-start-a-full-screen-placeholder-infinity-castle-falling-animation-sequence-on-the-same-page",
+      "title": "Implement idle detection on the Secret Forest page (/forest-of-demons): if the user is idle for 2 minutes, automatically start a full-screen placeholder “Infinity Castle falling” animation sequence on the same page.",
+      "reqIds": [
+        "REQ-28"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-during-the-infinity-castle-falling-sequence-enforce-a-one-way-experience-disable-ignore-background-clicks-and-other-page-interactions-for-45-seconds-at-45-seconds-show-a-muzan-placeholder-appearance-with-a-screen-glitch-effect-then-force-return-the-user-to-the-normal-secret-forest-experience",
+      "title": "During the Infinity Castle falling sequence, enforce a one-way experience: disable/ignore background clicks and other page interactions for 45 seconds; at 45 seconds, show a Muzan placeholder appearance with a screen-glitch effect, then force-return the user to the normal Secret Forest experience.",
+      "reqIds": [
+        "REQ-29"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-fix-the-secret-page-entry-trigger-so-the-secret-forest-page-reliably-opens-when-the-user-clicks-the-built-with-using-caffeine-ai-area-in-the-site-footer-the-caffeine-ai-link-area",
+      "title": "Fix the secret-page entry trigger so the Secret Forest page reliably opens when the user clicks the “Built with … using caffeine.ai” area in the site footer (the “caffeine.ai” link area).",
+      "reqIds": [
+        "REQ-30"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-add-basic-regression-checks-guards-so-the-secret-features-do-not-interfere-with-normal-site-behavior-and-the-secret-page-remains-functional-after-the-changes",
+      "title": "Add basic regression checks/guards so the secret features do not interfere with normal site behavior and the secret page remains functional after the changes.",
+      "reqIds": [
+        "REQ-31"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-fix-the-secret-forest-page-forest-of-demons-bird-chirping-audio-so-it-reliably-starts-when-the-user-enters-the-page-while-still-working-under-common-browser-autoplay-restrictions-and-provide-user-controls-to-mute-unmute-and-play-pause",
+      "title": "Fix the Secret Forest page (/forest-of-demons) bird-chirping audio so it reliably starts when the user enters the page, while still working under common browser autoplay restrictions, and provide user controls to mute/unmute and play/pause.",
+      "reqIds": [
+        "REQ-32"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-update-the-secret-forest-page-manga-section-so-each-of-the-23-demon-slayer-volume-cards-is-an-outbound-link-to-viz-s-official-website-without-embedding-or-redistributing-copyrighted-manga-pages",
+      "title": "Update the Secret Forest page manga section so each of the 23 Demon Slayer volume cards is an outbound link to Viz’s official website, without embedding or redistributing copyrighted manga pages.",
+      "reqIds": [
+        "REQ-33"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-fix-and-verify-secret-forest-interactions-so-they-work-for-real-users-a-background-clicks-are-counted-b-after-10-background-clicks-the-demon-slayer-character-placeholders-appear-c-after-2-minutes-of-user-idle-time-the-infinity-castle-falling-sequence-overlay-appears-enforces-the-one-way-interaction-lock-for-the-sequence-duration-shows-muzan-at-45-seconds-and-glitch-then-returns-to-the-normal-forest-experience",
+      "title": "Fix and verify Secret Forest interactions so they work for real users: (a) background clicks are counted, (b) after 10 background clicks the Demon Slayer character placeholders appear, (c) after 2 minutes of user idle time the Infinity Castle falling sequence overlay appears, enforces the one-way interaction lock for the sequence duration, shows Muzan at 45 seconds and glitch, then returns to the normal forest experience.",
+      "reqIds": [
+        "REQ-34"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-add-a-new-idle-triggered-sequence-on-the-secret-forest-page-forest-of-demons-when-the-user-is-idle-just-chilling-around-show-a-full-screen-sun-breathing-fire-wheel-effect-then-black-out-the-screen-then-kick-the-user-to-a-fake-404-screen-a-dedicated-route-page-to-simulate-being-kicked-out-of-the-website",
+      "title": "Add a new idle-triggered sequence on the Secret Forest page (/forest-of-demons): when the user is idle (\"just chilling around\"), show a full-screen Sun Breathing \"Fire Wheel\" effect, then black out the screen, then kick the user to a fake 404 screen (a dedicated route/page) to simulate being kicked out of the website.",
+      "reqIds": [
+        "REQ-35"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-implement-the-fire-wheel-visual-using-an-official-clip-url-provided-by-the-user-render-it-as-a-full-screen-overlay-spinning-moving-effect-and-ensure-the-implementation-supports-common-official-clip-formats-e-g-a-direct-mp4-webm-url-or-a-youtube-embed-url-if-the-clip-url-is-not-configured-or-cannot-be-played-show-a-fallback-fire-wheel-inspired-css-canvas-placeholder-animation-instead-of-failing-silently",
+      "title": "Implement the Fire Wheel visual using an official clip URL provided by the user: render it as a full-screen overlay (spinning/moving effect) and ensure the implementation supports common official clip formats (e.g., a direct MP4/WebM URL or a YouTube embed URL). If the clip URL is not configured or cannot be played, show a fallback Fire Wheel-inspired CSS/canvas placeholder animation instead of failing silently.",
+      "reqIds": [
+        "REQ-36"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-add-a-dedicated-fake-404-route-page-separate-from-the-real-notfound-behavior-that-looks-like-a-404-error-state-and-reinforces-the-kicked-out-effect-with-an-obvious-action-to-return-to-the-real-homepage",
+      "title": "Add a dedicated fake 404 route/page (separate from the real NotFound behavior) that looks like a 404 error state and reinforces the “kicked out” effect, with an obvious action to return to the real homepage.",
+      "reqIds": [
+        "REQ-37"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-integrate-the-new-fire-wheel-idle-triggered-kickout-sequence-with-the-existing-secret-forest-idle-triggered-infinity-castle-sequence-so-they-do-not-conflict-define-a-deterministic-priority-order-and-ensure-only-one-idle-triggered-sequence-can-run-at-a-time",
+      "title": "Integrate the new Fire Wheel idle-triggered kickout sequence with the existing Secret Forest idle-triggered Infinity Castle sequence so they do not conflict: define a deterministic priority/order and ensure only one idle-triggered sequence can run at a time.",
+      "reqIds": [
+        "REQ-38"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-add-a-comments-ui-to-the-announcements-page-so-logged-in-normal-users-can-read-existing-comments-and-post-new-comments-on-each-announcement",
+      "title": "Add a comments UI to the Announcements page so logged-in normal users can read existing comments and post new comments on each announcement.",
+      "reqIds": [
+        "REQ-41"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-add-a-comments-ui-to-the-mock-tests-page-so-logged-in-normal-users-can-read-existing-comments-and-post-new-comments-on-each-mock-test",
+      "title": "Add a comments UI to the Mock Tests page so logged-in normal users can read existing comments and post new comments on each mock test.",
+      "reqIds": [
+        "REQ-42"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-add-like-unlike-ui-on-both-announcements-and-mock-tests-cards-for-normal-user-accounts-including-a-visible-like-count-and-a-per-user-liked-state-toggle",
+      "title": "Add like/unlike UI on both Announcements and Mock Tests cards for normal user accounts, including a visible like count and a per-user liked state toggle.",
+      "reqIds": [
+        "REQ-43"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-create-a-user-to-user-chat-page-route-in-the-spa-where-logged-in-users-can-select-another-user-to-chat-with-and-exchange-messages-chat-updates-must-work-without-real-time-tech-by-using-periodic-polling-react-query-refetch-interval-while-the-chat-page-is-open",
+      "title": "Create a user-to-user chat page/route in the SPA where logged-in users can select another user to chat with and exchange messages. Chat updates must work without real-time tech by using periodic polling (React Query refetch interval) while the chat page is open.",
+      "reqIds": [
+        "REQ-44"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-investigate-the-current-deployment-failure-and-apply-the-necessary-code-configuration-fixes-so-the-project-deploys-successfully-to-the-internet-computer",
+      "title": "Investigate the current deployment failure and apply the necessary code/configuration fixes so the project deploys successfully to the Internet Computer.",
+      "reqIds": [
+        "REQ-46"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-ensure-the-deployed-frontend-correctly-connects-to-the-deployed-backend-canister-actor-so-core-pages-can-fetch-data-without-runtime-errors",
+      "title": "Ensure the deployed frontend correctly connects to the deployed backend canister (actor) so core pages can fetch data without runtime errors.",
+      "reqIds": [
+        "REQ-47"
+      ],
+      "version": 1
+    }
+  ],
+  "new_feature_requests": [
+    {
+      "id": "AR-1",
+      "summary": "Create Saha Institute coaching centre website using provided branding/logo; include contact info and mention centres across West Bengal",
+      "reqIds": [],
+      "status": "pending"
+    },
+    {
+      "id": "AR-2",
+      "summary": "Embed YouTube channels and display latest videos dynamically (fetch on page load/visit)",
+      "reqIds": [],
+      "status": "pending"
+    },
+    {
+      "id": "AR-3",
+      "summary": "Embed Facebook page and introduction video (via embed, not API)",
+      "reqIds": [],
+      "status": "pending"
+    },
+    {
+      "id": "AR-4",
+      "summary": "Add Reviews page (static/manual reviews)",
+      "reqIds": [],
+      "status": "pending"
+    },
+    {
+      "id": "AR-5",
+      "summary": "Add chatbot that provides general learning tips plus Saha Institute fees and courses information",
+      "reqIds": [],
+      "status": "pending"
+    },
+    {
+      "id": "AR-6",
+      "summary": "Add login + admin panel: Internet Identity login plus admin access code \"12345-QUICKLMOCK\"",
+      "reqIds": [],
+      "status": "pending"
+    },
+    {
+      "id": "AR-7",
+      "summary": "Admin can add/manage mock tests in video, PDF, or text formats",
+      "reqIds": [],
+      "status": "pending"
+    },
+    {
+      "id": "AR-8",
+      "summary": "Admin can post announcements with text plus videos and audios",
+      "reqIds": [],
+      "status": "pending"
+    },
+    {
+      "id": "AR-20",
+      "summary": "Store and serve all admin-managed data (centres/contacts, embeds configuration, mock tests, announcements) from the single Motoko actor and expose query/update methods for the frontend; ensure data is stable across canister upgrades (use stable variables/structures as appropriate for initial build).",
+      "reqIds": [
+        "REQ-12"
+      ],
+      "status": "pending"
+    },
+    {
+      "id": "AR-21",
+      "summary": "Update the Courses & Fees page: change the Courses section text to \"No course data, contact us for information\" (i.e., remove/omit course details) while keeping the existing main contact number as-is.",
+      "reqIds": [],
+      "status": "pending"
+    },
+    {
+      "id": "AR-22",
+      "summary": "Change/update the site-wide logo (replace the current logo asset used in header and favicon/tab icon as applicable).",
+      "reqIds": [],
+      "status": "pending"
+    },
+    {
+      "id": "AR-23",
+      "summary": "Add the two provided Facebook videos (share links) to the site as permanent embedded videos, including the 'important' video and the Saha Institute introduction video.",
+      "reqIds": [],
+      "status": "pending"
+    },
+    {
+      "id": "AR-24",
+      "summary": "Add hidden Easter egg: after 28 clicks on the 'centres no data' page, navigate to a secret page with looping forest background (falling leaves), neon-styled placeholders for Demon Slayer manga (all 23 volumes) and games; include looping bird-chirping audio; after 10 background clicks, show all Demon Slayer characters (placeholders).",
+      "reqIds": [],
+      "status": "pending"
+    },
+    {
+      "id": "AR-25",
+      "summary": "Secret page idle interaction: after 2 minutes idle, play placeholder Infinity Castle falling animation for 45 seconds; then show Muzan + screen glitch and force-return user to the secret forest page (one-way during the sequence).",
+      "reqIds": [],
+      "status": "pending"
+    },
+    {
+      "id": "AR-26",
+      "summary": "Fix secret-page entry trigger so the secret page reliably opens when clicking the \"Built by Caffeine AI\" area (current trigger not working).",
+      "reqIds": [],
+      "status": "pending"
+    },
+    {
+      "id": "AR-27",
+      "summary": "Update Secret Forest page manga section: replace placeholders with outbound links for each of the 23 volumes to their official Viz pages (no embedding/redistribution of copyrighted pages).",
+      "reqIds": [],
+      "status": "pending"
+    },
+    {
+      "id": "AR-28",
+      "summary": "Add a new secret-page effect: when the user is \"chilling\" (idle trigger TBD), show a full-screen Fire Wheel (Sun Breathing) animation using an official clip provided by the user, then blackout and kick the user to a fake 404 error screen (fake kick-out of the website).",
+      "reqIds": [],
+      "status": "pending"
+    },
+    {
+      "id": "AR-29",
+      "summary": "Add admin-triggered site-wide special effects and site-wide popup messages using a preset list of effects (e.g., money falling, neon text on black background), visible to users on refresh/navigation (no true realtime)",
+      "reqIds": [],
+      "status": "pending"
+    },
+    {
+      "id": "AR-30",
+      "summary": "Add user profile pages: normal users have name, bio, date of birth, and profile picture; admin profiles include a fire animation and a customized profile page",
+      "reqIds": [],
+      "status": "pending"
+    },
+    {
+      "id": "AR-31",
+      "summary": "Show the posting admin’s profile info (e.g., name + profile picture) as author attribution on announcements and mock tests so users can see who posted",
+      "reqIds": [],
+      "status": "pending"
+    },
+    {
+      "id": "AR-32",
+      "summary": "Add social features for normal accounts: allow users to comment, like, and chat with each other (user-to-user messaging)",
+      "reqIds": [],
+      "status": "pending"
+    },
+    {
+      "id": "AR-33",
+      "summary": "Extend the backend data model to support social interactions for authenticated normal user accounts: (a) comments on announcements and mock tests, (b) likes on announcements and mock tests, and (c) user-to-user chat (direct messages). All social data must be stored in the single Motoko actor and must persist across canister upgrades.",
+      "reqIds": [
+        "REQ-39"
+      ],
+      "status": "pending"
+    },
+    {
+      "id": "AR-34",
+      "summary": "Enforce authorization rules for social features: only authenticated users (Internet Identity logged-in users with the #user role) can comment, like, or chat; unauthenticated visitors can only view public like counts and public comments (but cannot create/like).",
+      "reqIds": [
+        "REQ-40"
+      ],
+      "status": "pending"
+    },
+    {
+      "id": "AR-39",
+      "summary": "Add backend support to list discoverable users for chat (e.g., users who have created a profile), returning enough display information for the chat UI to show a user list.",
+      "reqIds": [
+        "REQ-45"
+      ],
+      "status": "pending"
+    }
+  ],
+  "gameProjectType": "none",
+  "projectName": "Saha Institute",
+  "clarification_mode": "instant",
+  "clarification_rounds": 0
+}

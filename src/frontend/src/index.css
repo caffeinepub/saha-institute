@@ -1,0 +1,358 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+    :root {
+        --radius: 0.625rem;
+        
+        /* Education-themed palette: warm orange/amber primary with deep blue accents */
+        --background: 1 0 0;
+        --foreground: 0.145 0 0;
+        
+        --card: 1 0 0;
+        --card-foreground: 0.145 0 0;
+        
+        --popover: 1 0 0;
+        --popover-foreground: 0.145 0 0;
+        
+        /* Primary: Warm orange/amber for education warmth */
+        --primary: 0.65 0.18 45;
+        --primary-foreground: 1 0 0;
+        
+        /* Secondary: Deep blue for trust and professionalism */
+        --secondary: 0.55 0.15 250;
+        --secondary-foreground: 1 0 0;
+        
+        --muted: 0.97 0 0;
+        --muted-foreground: 0.556 0 0;
+        
+        --accent: 0.95 0.02 45;
+        --accent-foreground: 0.145 0 0;
+        
+        --destructive: 0.577 0.245 27.325;
+        --destructive-foreground: 0.985 0 0;
+        
+        --border: 0.922 0 0;
+        --input: 0.922 0 0;
+        --ring: 0.65 0.18 45;
+        
+        --chart-1: 0.65 0.18 45;
+        --chart-2: 0.55 0.15 250;
+        --chart-3: 0.7 0.2 120;
+        --chart-4: 0.6 0.22 300;
+        --chart-5: 0.75 0.15 180;
+        
+        --sidebar: 0.985 0 0;
+        --sidebar-foreground: 0.145 0 0;
+        --sidebar-primary: 0.65 0.18 45;
+        --sidebar-primary-foreground: 1 0 0;
+        --sidebar-accent: 0.97 0 0;
+        --sidebar-accent-foreground: 0.145 0 0;
+        --sidebar-border: 0.922 0 0;
+        --sidebar-ring: 0.708 0 0;
+    }
+
+    .dark {
+        --background: 0.145 0 0;
+        --foreground: 0.985 0 0;
+        
+        --card: 0.205 0 0;
+        --card-foreground: 0.985 0 0;
+        
+        --popover: 0.269 0 0;
+        --popover-foreground: 0.985 0 0;
+        
+        /* Primary: Brighter orange for dark mode */
+        --primary: 0.75 0.2 45;
+        --primary-foreground: 0.145 0 0;
+        
+        /* Secondary: Lighter blue for dark mode */
+        --secondary: 0.65 0.18 250;
+        --secondary-foreground: 1 0 0;
+        
+        --muted: 0.269 0 0;
+        --muted-foreground: 0.708 0 0;
+        
+        --accent: 0.371 0.05 45;
+        --accent-foreground: 0.985 0 0;
+        
+        --destructive: 0.704 0.191 22.216;
+        --destructive-foreground: 0.205 0 0;
+        
+        --border: 1 0 0 / 10%;
+        --input: 1 0 0 / 15%;
+        --ring: 0.75 0.2 45;
+        
+        --chart-1: 0.75 0.2 45;
+        --chart-2: 0.65 0.18 250;
+        --chart-3: 0.7 0.2 120;
+        --chart-4: 0.65 0.22 300;
+        --chart-5: 0.75 0.15 180;
+        
+        --sidebar: 0.205 0 0;
+        --sidebar-foreground: 0.985 0 0;
+        --sidebar-primary: 0.75 0.2 45;
+        --sidebar-primary-foreground: 0.145 0 0;
+        --sidebar-accent: 0.269 0 0;
+        --sidebar-accent-foreground: 0.985 0 0;
+        --sidebar-border: 1 0 0 / 10%;
+        --sidebar-ring: 0.439 0 0;
+    }
+
+    * {
+        @apply border-border;
+    }
+    
+    body {
+        @apply bg-background text-foreground;
+        font-feature-settings: "rlig" 1, "calt" 1;
+    }
+}
+
+/* Secret Forest Styles */
+@layer components {
+    .secret-forest .neon-text {
+        color: oklch(0.85 0.25 140);
+        text-shadow: 
+            0 0 10px oklch(0.85 0.25 140 / 0.8),
+            0 0 20px oklch(0.85 0.25 140 / 0.6),
+            0 0 30px oklch(0.85 0.25 140 / 0.4);
+    }
+
+    .secret-forest .neon-text-subtle {
+        color: oklch(0.75 0.2 140);
+        text-shadow: 
+            0 0 5px oklch(0.75 0.2 140 / 0.6),
+            0 0 10px oklch(0.75 0.2 140 / 0.4);
+    }
+
+    .leaf {
+        font-size: 1.5rem;
+        opacity: 0.7;
+    }
+}
+
+@layer utilities {
+    @keyframes forest-drift {
+        0%, 100% {
+            transform: translateX(0) scale(1);
+        }
+        50% {
+            transform: translateX(20px) scale(1.05);
+        }
+    }
+
+    @keyframes leaf-fall {
+        0% {
+            transform: translateY(-10vh) rotate(0deg);
+            opacity: 0;
+        }
+        10% {
+            opacity: 0.7;
+        }
+        90% {
+            opacity: 0.7;
+        }
+        100% {
+            transform: translateY(110vh) rotate(360deg);
+            opacity: 0;
+        }
+    }
+
+    @keyframes fade-in {
+        from {
+            opacity: 0;
+            transform: scale(0.95);
+        }
+        to {
+            opacity: 1;
+            transform: scale(1);
+        }
+    }
+
+    @keyframes infinity-fall {
+        0% {
+            transform: translateY(0) scale(1);
+        }
+        100% {
+            transform: translateY(50px) scale(1.1);
+        }
+    }
+
+    @keyframes castle-drift {
+        0%, 100% {
+            transform: translateY(0) rotate(0deg);
+            opacity: 0.3;
+        }
+        50% {
+            transform: translateY(-30px) rotate(180deg);
+            opacity: 0.6;
+        }
+    }
+
+    @keyframes fall-line {
+        0% {
+            transform: translateY(-100%);
+            opacity: 0;
+        }
+        50% {
+            opacity: 1;
+        }
+        100% {
+            transform: translateY(100vh);
+            opacity: 0;
+        }
+    }
+
+    @keyframes muzan-appear {
+        0% {
+            opacity: 0;
+            transform: scale(0.8);
+        }
+        100% {
+            opacity: 1;
+            transform: scale(1);
+        }
+    }
+
+    @keyframes screen-glitch {
+        0%, 100% {
+            transform: translate(0);
+        }
+        20% {
+            transform: translate(-5px, 5px);
+        }
+        40% {
+            transform: translate(5px, -5px);
+        }
+        60% {
+            transform: translate(-5px, -5px);
+        }
+        80% {
+            transform: translate(5px, 5px);
+        }
+    }
+
+    @keyframes glitch-flash {
+        0%, 100% {
+            opacity: 0;
+        }
+        50% {
+            opacity: 0.8;
+        }
+    }
+
+    @keyframes glitch-text {
+        0% {
+            transform: translate(0);
+            filter: blur(0);
+        }
+        20% {
+            transform: translate(-10px, 0);
+            filter: blur(2px);
+        }
+        40% {
+            transform: translate(10px, 0);
+            filter: blur(0);
+        }
+        60% {
+            transform: translate(0, -10px);
+            filter: blur(3px);
+        }
+        80% {
+            transform: translate(0, 10px);
+            filter: blur(1px);
+        }
+        100% {
+            transform: translate(0);
+            filter: blur(0);
+        }
+    }
+
+    @keyframes fire-wheel-rotate {
+        0% {
+            transform: rotate(0deg) scale(1);
+            opacity: 0.8;
+        }
+        50% {
+            opacity: 1;
+        }
+        100% {
+            transform: rotate(360deg) scale(1.1);
+            opacity: 0.8;
+        }
+    }
+
+    @keyframes fire-particle {
+        0% {
+            transform: translateY(0) scale(1);
+            opacity: 1;
+        }
+        100% {
+            transform: translateY(-100px) scale(0);
+            opacity: 0;
+        }
+    }
+
+    @keyframes blackout-fade {
+        0% {
+            opacity: 0;
+        }
+        100% {
+            opacity: 1;
+        }
+    }
+
+    .animate-forest-drift {
+        animation: forest-drift 20s ease-in-out infinite;
+    }
+
+    .animate-leaf-fall {
+        animation: leaf-fall linear infinite;
+    }
+
+    .animate-fade-in {
+        animation: fade-in 0.5s ease-out;
+    }
+
+    .animate-infinity-fall {
+        animation: infinity-fall 3s ease-in-out infinite alternate;
+    }
+
+    .animate-castle-drift {
+        animation: castle-drift linear infinite;
+    }
+
+    .animate-fall-line {
+        animation: fall-line linear infinite;
+    }
+
+    .animate-muzan-appear {
+        animation: muzan-appear 1s ease-out;
+    }
+
+    .animate-screen-glitch {
+        animation: screen-glitch 0.3s ease-in-out infinite;
+    }
+
+    .animate-glitch-flash {
+        animation: glitch-flash 0.2s ease-in-out infinite;
+    }
+
+    .animate-glitch-text {
+        animation: glitch-text 0.5s ease-in-out infinite;
+    }
+
+    .animate-fire-wheel-rotate {
+        animation: fire-wheel-rotate linear infinite;
+    }
+
+    .animate-fire-particle {
+        animation: fire-particle linear infinite;
+    }
+
+    .animate-blackout-fade {
+        animation: blackout-fade 2s ease-in;
+    }
+}
